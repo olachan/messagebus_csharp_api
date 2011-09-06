@@ -1,3 +1,4 @@
+using System.Net;
 using System.Web.Script.Serialization;
 
 namespace MessageBus.SPI {
@@ -8,6 +9,9 @@ namespace MessageBus.SPI {
         JavaScriptSerializer Serializer { get; set; }
         string Domain { set; }
         string Path { set; }
+        IWebProxy Proxy { set; }
+        ICredentials Credentials { set; }
+        bool SslVerifyPeer { set; }
         BatchEmailResponse SendEmails(BatchEmailRequest batchEmailRequest);
     }
 }

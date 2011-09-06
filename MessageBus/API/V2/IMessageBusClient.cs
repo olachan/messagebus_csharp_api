@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace MessageBus.API.V2 {
     /// <summary>
@@ -42,6 +43,16 @@ namespace MessageBus.API.V2 {
         /// Custom headers to include with the email.  To add a customer header call CustomHeaders.Add("{headerName}", "{headerValue}")
         /// </summary>
         Dictionary<string, string> CustomHeaders { get; }
+
+        /// <summary>
+        /// The the proxy to use for Http connections.
+        /// </summary>
+        IWebProxy Proxy { set; }
+
+        /// <summary>
+        /// The Number of emails to buffer before sending over the wire.
+        /// </summary>
+        int EmailBufferSize { get; set; }
 
         /// <summary>
         /// Flush any email waiting to be sent.  Returns true if the operation caused email to be transferred to the server.

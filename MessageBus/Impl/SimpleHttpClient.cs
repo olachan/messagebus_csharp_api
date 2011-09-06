@@ -27,6 +27,17 @@ namespace MessageBus.Impl {
         public string Domain { private get; set; }
         public string Path { private get; set; }
 
+        public bool SslVerifyPeer {
+            set {
+                if (value) {
+                    ServicePointManager.ServerCertificateValidationCallback += delegate { return true; };
+                }
+            }
+        }
+
+        public IWebProxy Proxy { private get; set; }
+        public ICredentials Credentials { private get; set; }
+
         public BatchEmailResponse SendEmails(BatchEmailRequest batchEmailRequest) {
             var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, SEND_EMAILS);
 
@@ -55,7 +66,20 @@ namespace MessageBus.Impl {
         }
 
         protected internal virtual WebRequestWrapper CreateRequest(String uriString) {
-            return new WebRequestWrapper(WebRequest.Create(new Uri(uriString)) as HttpWebRequest);
+            var httpWebRequest = WebRequest.Create(new Uri(uriString)) as HttpWebRequest;
+            if (httpWebRequest != null) {
+                httpWebRequest.KeepAlive = true;
+                httpWebRequest.AllowAutoRedirect = true;
+                if (Proxy != null) {
+                    httpWebRequest.Proxy = Proxy;
+                }
+
+                if (Credentials != null) {
+                    httpWebRequest.Credentials = Credentials;
+                }
+                return new WebRequestWrapper(httpWebRequest);
+            }
+            throw new ApplicationException("Could not create web request");
         }
 
         protected internal virtual WebResponseWrapper WrapResponse(WebResponse response) {

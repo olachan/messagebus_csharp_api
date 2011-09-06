@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MessageBus.API;
 using MessageBus.API.V2;
+using MessageBus.API.V2.Debug;
 using MessageBus.Impl;
 using MessageBus.SPI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -100,6 +101,48 @@ namespace MessageBusTest.Impl {
             Assert.AreEqual(0, TestEvent.FailureCount);
             Assert.AreEqual(1, TestEvent.SuccessCount);
             Assert.AreEqual("1234", TestEvent.Statuses[0].MessageId);
+        }
+
+        [TestMethod]
+        public void CallingSendWithBufferSizeOfTwoDoesNotSend() {
+            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailRequest>.Is.Anything)).Repeat.Never();
+
+            Client.EmailBufferSize = 2;
+
+            Client.Send(new MessageBusEmail());
+        }
+
+        [TestMethod]
+        public void CallingSendWithBufferSizeOfTwoDoesNotSendUntilFlush() {
+            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailRequest>.Is.Anything)).Repeat.Once();
+
+            Client.EmailBufferSize = 2;
+
+            Client.Send(new MessageBusEmail());
+            Assert.IsTrue(Client.Flush());
+        }
+
+        [TestMethod]
+        public void CallingSendWithBufferSizeOfTwoInAUsingBlockFlushesAtTheEnd() {
+            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailRequest>.Is.Anything)).Repeat.Once();
+
+            Client.EmailBufferSize = 2;
+
+            using (Client) {
+                Client.Send(new MessageBusEmail());
+            }
+        }
+
+        [TestMethod]
+        public void CallingFlushWithNoQueueMessagesReturnsFalse()
+        {
+            Assert.IsFalse(Client.Flush());
+        }
+
+        [TestMethod]
+        public void CanCastClientToAccessDebuggingOptions()
+        {
+            (Client as IMessageBusDebugging).Domain = "test.example.com";
         }
 
         void Transmitted(IMessageBusTransmissionEvent transmissionEvent) {

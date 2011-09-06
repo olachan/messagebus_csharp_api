@@ -115,5 +115,12 @@ namespace MessageBusTest.Impl {
             Client.SendEmails(new BatchEmailRequest());
             Assert.AreEqual("https://test.somewhere.org/api/v2/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
         }
+
+        [TestMethod]
+        public void CanSetPath() {
+            Client.Path = "test/path";
+            Client.SendEmails(new BatchEmailRequest());
+            Assert.AreEqual("https://api.messagebus.com/test/path/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
+        }
     }
 }

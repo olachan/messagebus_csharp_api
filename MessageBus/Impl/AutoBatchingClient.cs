@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using MessageBus.API;
 using MessageBus.API.V2;
+using MessageBus.API.V2.Debug;
 using MessageBus.SPI;
 
 namespace MessageBus.Impl {
@@ -9,7 +11,7 @@ namespace MessageBus.Impl {
     /// <summary>
     /// An implementation of IMessageBusClient that automatically buffers and transmits email to the server in batches. 
     /// </summary>
-    public class AutoBatchingClient : IMessageBusClient {
+    public class AutoBatchingClient : IMessageBusClient, IMessageBusDebugging {
 
         public event MessageTransmissionHandler Transmitted;
 
@@ -38,24 +40,38 @@ namespace MessageBus.Impl {
             EmailBufferSize = 20;
         }
 
-        public void SetBasicAuthCredentials(string user, string password) {
-
+        public string Domain {
+            set { HttpClient.Domain = value; }
         }
 
-        public string Domain { get; set; }
+        public string Path {
+            set { HttpClient.Path = value; }
+        }
 
-        public bool SslVerifyPeer { get; set; }
+        public bool SslVerifyPeer {
+            set { HttpClient.SslVerifyPeer = value; }
+        }
+
+        public IWebProxy Proxy {
+            set { HttpClient.Proxy = value; }
+        }
+
+        public ICredentials Credentials {
+            set { HttpClient.Credentials = value; }
+        }
 
         public int EmailBufferSize { get; set; }
 
         public bool Flush() {
+            var result = false;
             lock (this) {
                 if (CurrentRequest != null) {
                     HttpClient.SendEmails(CurrentRequest);
                     CurrentRequest = new BatchEmailRequest(this);
+                    result = true;
                 }
             }
-            return false;
+            return result;
         }
 
         public bool Close() {
@@ -100,7 +116,7 @@ namespace MessageBus.Impl {
         public Dictionary<string, string> CustomHeaders { get; private set; }
 
         public void Dispose() {
-            throw new NotImplementedException();
+            Flush();
         }
     }
 

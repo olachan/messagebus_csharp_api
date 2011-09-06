@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\V2\Debug\IMessageBusDebugging.cs" />
     <Compile Include="API\V2\IMessageBusClient.cs" />
     <Compile Include="API\ILogger.cs" />
     <Compile Include="API\MessageBus.cs" />
