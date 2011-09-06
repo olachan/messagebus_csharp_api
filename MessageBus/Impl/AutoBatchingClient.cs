@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using MessageBus.API;
 using MessageBus.API.V2;
 using MessageBus.API.V2.Debug;
 using MessageBus.SPI;
+using MessageBusTest.Impl;
 
 namespace MessageBus.Impl {
 
@@ -19,8 +21,9 @@ namespace MessageBus.Impl {
 
         public string ApiVersion { get; private set; }
 
-        private ILogger Logger;
+        private readonly ILogger Logger;
         private readonly IMessageBusHttpClient HttpClient;
+
         private BatchEmailRequest CurrentRequest;
 
         public AutoBatchingClient(string apiKey, string version)
@@ -38,7 +41,11 @@ namespace MessageBus.Impl {
             HttpClient = httpClient;
             Logger = logger;
             EmailBufferSize = 20;
+            Logger.debug(String.Format("AutoBatchingClient created for version {0} with http client class {1}", version, httpClient.GetType().Name));
         }
+
+        public bool SkipValidation { private get; set; }
+
 
         public string Domain {
             set { HttpClient.Domain = value; }
@@ -63,15 +70,17 @@ namespace MessageBus.Impl {
         public int EmailBufferSize { get; set; }
 
         public bool Flush() {
-            var result = false;
+            var result = 0;
             lock (this) {
                 if (CurrentRequest != null) {
-                    HttpClient.SendEmails(CurrentRequest);
+                    var response = HttpClient.SendEmails(CurrentRequest);
+                    OnTranmission(response);
+                    result = CurrentRequest.messageCount;
                     CurrentRequest = new BatchEmailRequest(this);
-                    result = true;
                 }
             }
-            return result;
+            Logger.info(String.Format("Flush Complete: {0} messages tranmitted.", result));
+            return result > 0;
         }
 
         public bool Close() {
@@ -79,8 +88,10 @@ namespace MessageBus.Impl {
         }
 
         public bool Send(MessageBusEmail email) {
+            AutoCorrect(email);
+            Validate(email);
             lock (this) {
-                bool result = false;
+                var result = 0;
                 if (CurrentRequest == null) {
                     CurrentRequest = new BatchEmailRequest(this);
                 }
@@ -90,10 +101,11 @@ namespace MessageBus.Impl {
                 if (CurrentRequest.messageCount >= EmailBufferSize) {
                     var response = HttpClient.SendEmails(CurrentRequest);
                     OnTranmission(response);
+                    result = CurrentRequest.messageCount;
                     CurrentRequest = new BatchEmailRequest(this);
-                    result = true;
                 }
-                return result;
+                Logger.info(String.Format("Send Complete: {0} messages buffered and {1} messages tranmitted.", 1, result));
+                return result > 0;
             }
         }
 
@@ -117,6 +129,55 @@ namespace MessageBus.Impl {
 
         public void Dispose() {
             Flush();
+        }
+
+        private void AutoCorrect(MessageBusEmail email) {
+            if (!String.IsNullOrEmpty(TemplateKey) && !email.MergeFields.ContainsKey("%EMAIL%")) {
+                email.MergeFields["%EMAIL%"] = email.ToEmail;
+            }
+        }
+
+        private void Validate(MessageBusEmail email) {
+            if (SkipValidation) return;
+            string msg = "";
+
+            if (String.IsNullOrEmpty(ApiKey)) {
+                msg = "ApiKey is required";
+            }
+            if (String.IsNullOrEmpty(ApiVersion)) {
+                msg = "ApiVersion is required";
+            }
+
+            if (String.IsNullOrEmpty(FromEmail) && String.IsNullOrEmpty(email.FromEmail)) {
+                msg = "From Email is required";
+            }
+
+            if (String.IsNullOrEmpty(email.Subject)) {
+                msg = "Subject is required";
+            }
+
+            if (String.IsNullOrEmpty(email.ToEmail)) {
+                msg = "ToEmail is required";
+            }
+
+            if (String.IsNullOrEmpty(email.PlaintextBody) && String.IsNullOrEmpty(email.HtmlBody) && String.IsNullOrEmpty(TemplateKey)) {
+                msg = "HtmlBody or PlaintextBody is required unless a TemplateKey is supplied";
+            }
+
+            if (!String.IsNullOrEmpty(TemplateKey) && email.MergeFields.Count == 0) {
+                msg = "Merge Fields must be supplied if a TemplateKey is specified";
+            }
+
+            if (email.MergeFields.Count > 0) {
+                if (email.MergeFields.Any(pair => !pair.Key.StartsWith("%") || !pair.Key.EndsWith("%"))) {
+                    msg = "Merge Fields must be surrounded with %% e.g. %FIELD%";
+                }
+            }
+
+            if (msg.Length > 0) {
+                Logger.error(msg);
+                throw new MessageBusValidationFailedException(msg);
+            }
         }
     }
 

@@ -11,5 +11,8 @@ namespace MessageBus.API {
         void log(LogLevel level, Exception exception);
         void log(LogLevel level, string message, Exception exception);
 
+        void debug(string message);
+        void info(string message);
+        void error(string message);
     }
 }

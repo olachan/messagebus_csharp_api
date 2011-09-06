@@ -55,6 +55,7 @@
     <Compile Include="API\MessageBus.cs" />
     <Compile Include="API\V2\IMessageBusMessageStatus.cs" />
     <Compile Include="API\V2\MessageBusTransmissionEvent.cs" />
+    <Compile Include="API\V2\MessageBusValidationFailedException.cs" />
     <Compile Include="API\V2\MessageTransmissionHandler.cs" />
     <Compile Include="Impl\AutoBatchingClient.cs" />
     <Compile Include="API\V2\MessageBusEmail.cs" />

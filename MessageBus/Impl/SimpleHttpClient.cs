@@ -73,7 +73,6 @@ namespace MessageBus.Impl {
                 if (Proxy != null) {
                     httpWebRequest.Proxy = Proxy;
                 }
-
                 if (Credentials != null) {
                     httpWebRequest.Credentials = Credentials;
                 }
