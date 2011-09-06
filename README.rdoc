@@ -1,0 +1,9 @@
+= Messagebus C# API
+
+== Installation
+
+  git clone git@github.com:messagebus/messagebus_csharp_api.git
+
+If you have any questions or problems, please contact MessageBus (https://www.messagebus.com/contact)
+
+
