@@ -47,9 +47,9 @@ Alternatively, the loop can be surrounded with a using {} block as follows:
         client.Send(new MessageBusEmail {
           ToEmail = item.EmailAddress,
           Subject = "Hello from MessageBus",
-	  PlaintextBody = "Hello and Welcome!",
-	  HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
-	});
+          PlaintextBody = "Hello and Welcome!",
+          HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
+        });
       }
     }
   } catch (WebException e) {  // This exception occurs in the event of a server error.
@@ -101,14 +101,43 @@ An ApiTemplate can be defined on the MessageBus website.  In order to send mail 
 		.	
 	}
 
+=== Retrieving Message Status
+
+  client.Transmitted += OnTransmitted;
+
+        void OnTransmitted(IMessageBusTransmissionEvent transmissionEvent)
+        {
+
+            tbFailedCount.Text = transmissionEvent.FailureCount.ToString();
+            tbSuccessCount.Text = transmissionEvent.SuccessCount.ToString();
+            tbErrorMessage.Text = string.Empty;
+
+            if (transmissionEvent.Statuses.Count == 1)
+            {
+                tbMessageID.Text = transmissionEvent.Statuses[0].MessageId;
+            }
+        }
+
+
+
 == Advanced Usage
 
 === Registering IMessageBusClient with and IoC Container
 
+The following example shows how the MessageBus API can be used to inject the MessageBus Client into application services.  This example using the CastleWindsor IoC container.
+
+public static void AddComponentsTo(IWindsorContainer container)
+        {
+            container.AddComponentLifeStyle("MessageBusClient", typeof(IMessageBusClient), typeof(AutoBatchingClient), Castle.Core.LifestyleType.Singleton);
+	
+}
+
 === Logging
 
-== Debugging
+Logging is disabled by default.  Simple console logging is supplied and can be enabled as follows:
 
+
+Logging can be made to conform with the standards of the client application by supplying a custom implementation of the ({ILogger}) interface. 
 
 == More Info
 
