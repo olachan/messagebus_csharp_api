@@ -44,7 +44,7 @@ namespace MessageBusTest {
             Assert.AreEqual("2.2", mb.ApiVersion);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void SendsABlackHoleMessageToDemo() {
             var mb = MessageBus.API.MessageBus.CreateClient("746296C8062E4CF82F69621850282BBF", 2, new ConsoleLogger());
             SetDebugOptions(mb);
@@ -61,7 +61,7 @@ namespace MessageBusTest {
             }
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void SendsABlackHoleMessageToDemoUsingATemplate() {
             var mb = MessageBus.API.MessageBus.CreateClient("746296C8062E4CF82F69621850282BBF", 2, new ConsoleLogger());
             SetDebugOptions(mb);
@@ -78,7 +78,7 @@ namespace MessageBusTest {
             var debug = client as IMessageBusDebugging;
             debug.Domain = "https://apitest.messagebus.com";
             debug.SslVerifyPeer = false;
-            debug.Credentials = new NetworkCredential("user", "password");
+            debug.Credentials = new NetworkCredential("<user>", "<password>");
         }
     }
 }

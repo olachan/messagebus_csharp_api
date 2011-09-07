@@ -264,7 +264,7 @@ namespace MessageBus.Impl {
     /// </summary>
     internal class MessageStatus : IMessageBusMessageStatus {
         public MessageStatus(BatchEmailResult response) {
-            Succeeded = (response.status == "OK");
+            Succeeded = (response.status == "200");
             StatusCode = response.status;
             StatusMessage = response.statusMessage;
             MessageId = response.messageId;
