@@ -57,7 +57,8 @@ Alternatively, the loop can be surrounded with a using {} block as follows:
     .
     .
     .
-  }	
+  }
+
 	
 === Sending pre-formatted email
 
@@ -76,30 +77,32 @@ Preformatted email is email in which the subject and body are composed before se
       });
      }
   } catch (WebException e) { // This exception occurs in the event of a server error.
-  .
-  .
-  .
+    .
+    .
+    .
   }
+
 
 === Sending Template email
 
 An ApiTemplate can be defined on the MessageBus website.  In order to send mail using an ApiTemplate, copy the ApiTemplate key into your code, for example:
 
-	var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
-	client.TemplateKey = "24E26340A4E6012E8C2940406818E8C7";
+  var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
+  client.TemplateKey = "24E26340A4E6012E8C2940406818E8C7";
 
-	try {
-		using(client) {
-			var email = new MessageBusTemplateEmail();
-                	email.MergeFields.Add("%EMAIL%", "joe@example.com");
-                	email.MergeFields.Add("%NAME%", "Joe Soap");
-                	client.Send(email);			
-		}
-	} catch (WebException e) { // This exception occurs in the event of a server error.
-		.
-		.
-		.	
-	}
+  try {
+    using(client) {
+      var email = new MessageBusTemplateEmail();
+      email.MergeFields.Add("%EMAIL%", "joe@example.com");
+      email.MergeFields.Add("%NAME%", "Joe Soap");
+      client.Send(email);
+    }
+  } catch (WebException e) { // This exception occurs in the event of a server error.
+    .
+    .
+    .
+  }
+
 
 === Retrieving Message Status
 
@@ -127,6 +130,7 @@ This is an example of handling the returned events:
 - Next add the method to the event chain:
 
   client.Transmitted += OnTransmitted;
+
 
 == Advanced Usage
 
