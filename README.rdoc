@@ -127,6 +127,7 @@ This is an example of handling the returned events:
     }
   }
 
+
 - Next add the method to the event chain:
 
   client.Transmitted += OnTransmitted;
