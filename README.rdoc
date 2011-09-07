@@ -106,7 +106,7 @@ An ApiTemplate can be defined on the MessageBus website.  In order to send mail 
 
 === Retrieving Message Status
 
-Status results for tranmissions of messages to the MessageBus server are returned via the standard C# event model.
+Status results for transmissions of messages to the MessageBus server are returned via the standard C# event model.
 The event is triggered each time messages are transmitted to the server and contain a status for each message that has
 been sent.  The statues are returned in the same order they were sent.
 
