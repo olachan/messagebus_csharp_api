@@ -1,9 +1,26 @@
 = Messagebus C# API
 
-== Installation
+== Downloading the DLL
+
+== Downloading the Source Code
 
   git clone git@github.com:messagebus/messagebus_csharp_api.git
 
-If you have any questions or problems, please contact MessageBus (https://www.messagebus.com/contact)
+== Sending Mail with MessageBus
 
+=== Taking advantage of bufferring
+
+=== Sending pre-formatted email
+
+=== Sending Template email
+
+== Advanced Usage
+
+=== Registering IMessageBusClient with and IoC Container
+
+=== Logging
+
+== More Info
+
+If you have any questions or problems, please contact MessageBus (https://www.messagebus.com/contact)
 
