@@ -1,5 +1,6 @@
 using System.Net;
 using System.Web.Script.Serialization;
+using MessageBus.API;
 
 namespace MessageBus.SPI {
     /// <summary>

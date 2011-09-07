@@ -35,7 +35,7 @@ namespace MessageBus.Impl {
         }
 
         public AutoBatchingClient(string apiKey, string version, ILogger logger)
-            : this(apiKey, version, new SimpleHttpClient(), logger) {
+            : this(apiKey, version, new SimpleHttpClient(logger), logger) {
         }
 
         public AutoBatchingClient(string apiKey, string version, IMessageBusHttpClient httpClient, ILogger logger) {

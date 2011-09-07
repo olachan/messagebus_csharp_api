@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Script.Serialization;
+using MessageBus.API;
 using MessageBus.SPI;
 
 namespace MessageBus.Impl {
@@ -11,6 +12,8 @@ namespace MessageBus.Impl {
     /// A Client that uses regular System.Net WebRequest objects to handle transmission.
     /// </summary>
     public class SimpleHttpClient : IMessageBusHttpClient {
+
+        private readonly ILogger Logger;
 
         private const string REQUEST_URL_FORMAT = "{0}/{1}/{2}";
         private const string SEND_EMAILS = "emails/send";
@@ -21,6 +24,11 @@ namespace MessageBus.Impl {
             Domain = "https://api.messagebus.com";
             Path = "api/v2";
             Serializer = new JavaScriptSerializer();
+            Logger = new NullLogger();
+        }
+        public SimpleHttpClient(ILogger logger)
+            : this() {
+            Logger = logger;
         }
 
         public JavaScriptSerializer Serializer { get; set; }
@@ -29,7 +37,7 @@ namespace MessageBus.Impl {
 
         public bool SslVerifyPeer {
             set {
-                if (value) {
+                if (value == false) {
                     ServicePointManager.ServerCertificateValidationCallback += delegate { return true; };
                 }
             }
@@ -54,14 +62,26 @@ namespace MessageBus.Impl {
                 requestStream.Write(postDataArray, 0, postDataArray.Length);
             }
 
-            using (var response = WrapResponse(request.GetResponse())) {
-                using (var responseStream = response.GetResponseStream()) {
-                    using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
-                        string responseString = reader.ReadToEnd();
-                        var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
-                        return result;
+            try {
+                using (var response = WrapResponse(request.GetResponse())) {
+                    using (var responseStream = response.GetResponseStream()) {
+                        using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
+                            string responseString = reader.ReadToEnd();
+                            var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
+                            return result;
+                        }
                     }
                 }
+            } catch (WebException e) {
+                BatchEmailResponse result;
+                using (var responseStream = e.Response.GetResponseStream()) {
+                    using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
+                        string responseString = reader.ReadToEnd();
+                        result = Serializer.Deserialize<BatchEmailResponse>(responseString);
+                    }
+                }
+                Logger.error(String.Format("Request Failed with Status: {0}.  StatusMessage={1}", e.Status, result.statusMessage));
+                throw;
             }
         }
 
@@ -79,6 +99,12 @@ namespace MessageBus.Impl {
                 return new WebRequestWrapper(httpWebRequest);
             }
             throw new ApplicationException("Could not create web request");
+        }
+
+        private void SetBasicAuthHeader(WebRequest req, String userName, String userPassword) {
+            string authInfo = userName + ":" + userPassword;
+            authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
+            req.Headers["Authorization"] = "Basic " + authInfo;
         }
 
         protected internal virtual WebResponseWrapper WrapResponse(WebResponse response) {
