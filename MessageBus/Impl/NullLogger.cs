@@ -1,3 +1,4 @@
+using System;
 using MessageBus.API;
 
 namespace MessageBus.Impl {
@@ -6,6 +7,9 @@ namespace MessageBus.Impl {
         }
 
         public void error(string message) {
+        }
+
+        public void warning(string message) {
         }
     }
 }

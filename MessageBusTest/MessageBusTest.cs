@@ -44,21 +44,41 @@ namespace MessageBusTest {
             Assert.AreEqual("2.2", mb.ApiVersion);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void SendsABlackHoleMessageToDemo() {
             var mb = MessageBus.API.MessageBus.CreateClient("746296C8062E4CF82F69621850282BBF", 2, new ConsoleLogger());
-            var debug = mb as IMessageBusDebugging;
-            debug.Domain = "https://apitest.messagebus.com";
-            debug.SslVerifyPeer = false;
-            mb.FromEmail = "test@messagebus.com";
+            SetDebugOptions(mb);
+            mb.FromEmail = "bob@example.com";
+            mb.Tags = new[] { "TAGA" };
+            mb.CustomHeaders.Add("REPLY-TO", "do-not-reply@example.com");
             using (mb) {
                 mb.Send(new MessageBusEmail {
-                    //FromEmail = "test@messagebus.com",
-                    ToEmail = "ian@messagebus.com",
+                    ToEmail = "alice@example.com",
                     Subject = "Test from Messagebus",
-                    PlaintextBody = "Some Body Text"
+                    PlaintextBody = "Some Body Text",
+                    HtmlBody = "<html><body><h1>Hello!</h1></body></htm>"
                 });
             }
+        }
+
+        [TestMethod, Ignore]
+        public void SendsABlackHoleMessageToDemoUsingATemplate() {
+            var mb = MessageBus.API.MessageBus.CreateClient("746296C8062E4CF82F69621850282BBF", 2, new ConsoleLogger());
+            SetDebugOptions(mb);
+            mb.TemplateKey = "24E26340A4E6012E8C2940406818E8C7";
+            using (mb) {
+                var email = new MessageBusTemplateEmail();
+                email.MergeFields.Add("%EMAIL%", "joe@example.com");
+                email.MergeFields.Add("%NAME%", "Joe Soap");
+                mb.Send(email);
+            }
+        }
+
+        private void SetDebugOptions(IMessageBusClient client) {
+            var debug = client as IMessageBusDebugging;
+            debug.Domain = "https://apitest.messagebus.com";
+            debug.SslVerifyPeer = false;
+            debug.Credentials = new NetworkCredential("<user>", "<password>");
         }
     }
 }

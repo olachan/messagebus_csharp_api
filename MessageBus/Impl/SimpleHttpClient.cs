@@ -73,14 +73,23 @@ namespace MessageBus.Impl {
                     }
                 }
             } catch (WebException e) {
-                BatchEmailResponse result;
-                using (var responseStream = e.Response.GetResponseStream()) {
-                    using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
-                        string responseString = reader.ReadToEnd();
-                        result = Serializer.Deserialize<BatchEmailResponse>(responseString);
+                if (e.Response != null) {
+                    string message;
+                    using (var responseStream = e.Response.GetResponseStream()) {
+                        using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
+                            string responseString = reader.ReadToEnd();
+                            try {
+                                var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
+                                message = result.statusMessage;
+                            } catch (ArgumentException x) {
+                                message = responseString;
+                            }
+                        }
                     }
+                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage={1}. Message={2}", e.Status, message, e.Message));
+                } else {
+                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage=<Unknown>. Message={1}", e.Status, e.Message));
                 }
-                Logger.error(String.Format("Request Failed with Status: {0}.  StatusMessage={1}", e.Status, result.statusMessage));
                 throw;
             }
         }
