@@ -2,7 +2,7 @@
 
 == Downloading the DLL
 
-  The dll can be downloaded from http://dontknow.com
+  The dll can be downloaded from https://github.com/downloads/messagebus/messagebus_csharp_api/MessageBus.dll
 
 == Downloading the Source Code
 
@@ -63,24 +63,23 @@ Alternatively, the loop can be surrounded with a using {} block as follows:
 
 Preformatted email is email in which the subject and body are composed before sending to MessageBus.  The following example will send a single pre-formatted email via MessageBus:
 
-	var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
-	client.FromEmail = "test@example.com";
+  var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
+  client.FromEmail = "test@example.com";
 
-	try {
-		using(client) {			
-			client.Send(new MessageBusEmail {
-				ToEmail = "test@example.com",
-				Subject = "Hello from MessageBus",
-				PlaintextBody = "Hello and Welcome!",
-				HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
-				});
-			
-		}
-	} catch (WebException e) { // This exception occurs in the event of a server error.
-		.
-		.
-		.
-	}
+  try {
+    using(client) {
+      client.Send(new MessageBusEmail {
+        ToEmail = "test@example.com",
+        Subject = "Hello from MessageBus",
+        PlaintextBody = "Hello and Welcome!",
+        HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
+      });
+     }
+  } catch (WebException e) { // This exception occurs in the event of a server error.
+  .
+  .
+  .
+  }
 
 === Sending Template email
 
@@ -110,7 +109,7 @@ been sent.  The statues are returned in the same order they were sent.
 
 This is an example of handling the returned events:
 
-1. Define a method to be called when messages are transmitted:
+- Define a method to be called when messages are transmitted:
 
   void OnTransmitted(IMessageBusTransmissionEvent transmissionEvent) {
 
@@ -125,7 +124,7 @@ This is an example of handling the returned events:
     }
   }
 
-2. Next add the method to the event chain:
+- Next add the method to the event chain:
 
   client.Transmitted += OnTransmitted;
 
