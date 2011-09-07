@@ -172,7 +172,7 @@ Logging is disabled by default.  Simple console logging is supplied and can be e
 
   var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456", new ConsoleLogger());
 
-Logging can be made to conform with the standards of the client application by supplying a custom implementation of the (({ILogger})) interface.
+Logging can be made to conform with the standards of the client application by supplying a custom implementation of the ILogger interface.
 
 == More Info
 
