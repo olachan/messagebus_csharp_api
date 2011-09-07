@@ -112,7 +112,7 @@ been sent.  The statues are returned in the same order they were sent.
 
 This is an example of handling the returned events:
 
-- Define a method to be called when messages are transmitted:
+First Define a method to be called when messages are transmitted:
 
   void OnTransmitted(IMessageBusTransmissionEvent transmissionEvent) {
 
@@ -127,8 +127,7 @@ This is an example of handling the returned events:
     }
   }
 
-
-- Next add the method to the event chain:
+Next add the method to the event chain:
 
   client.Transmitted += OnTransmitted;
 
