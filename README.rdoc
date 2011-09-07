@@ -8,17 +8,107 @@
 
 == Sending Mail with MessageBus
 
+=== Creating an instance of the MessageBus email client:
+
+	var client = MessageBus.API.MessageBus.CreateClient("<Your API Key Here>");
+
+(For more options please see "Advanced Usage".
+
+
 === Taking advantage of bufferring
 
+The MessageBus API buffers e-mail on the client and transmits email to the server in batches.  This behaviour can be managed with the following operations:
+
+To set the number of emails to buffer before automatically sending (the default value is 20):
+
+	client.EmailBufferSize = 100; // sets the number of emails to buffer before sending to 100.
+
+Adding mail to the buffer is done as follows:
+
+	client.Send(new MessageBusEmail {
+                    ToEmail = "alice@example.com",
+                    Subject = "Test from Messagebus",
+                    PlaintextBody = "Hello",
+                    HtmlBody = "<html><body><h1>Hello!</h1></body></htm>"
+                });
+
+Typically sending occurs in a loop over a list of recipients.  Mail is transmitted to the server each time the buffer is full, but you will need to Flush the buffer once the looping is complete to ensure that the last few items in the buffer are transmitted.  This is achieved as follows:
+
+	client.Flush();
+
+Alternatively, the loop can be surrounded with a using {} block as follows:
+
+	var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
+	client.FromEmail = "test@example.com";
+
+	try {
+		using(client) {
+			foreach(var item in MyMailingList) {
+				client.Send(new MessageBusEmail {
+					ToEmail = item.EmailAddress,
+					Subject = "Hello from MessageBus",
+					PlaintextBody = "Hello and Welcome!",
+					HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
+				});
+			}
+		}
+	} catch (WebException e) {  // This exception occurs in the event of a server error.
+		.
+		.
+		.
+	}	
+	
 === Sending pre-formatted email
 
+Preformatted email is email in which the subject and body are composed before sending to MessageBus.  The following example will send a single pre-formatted email via MessageBus:
+
+	var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
+	client.FromEmail = "test@example.com";
+
+	try {
+		using(client) {			
+			client.Send(new MessageBusEmail {
+				ToEmail = "test@example.com",
+				Subject = "Hello from MessageBus",
+				PlaintextBody = "Hello and Welcome!",
+				HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
+				});
+			
+		}
+	} catch (WebException e) { // This exception occurs in the event of a server error.
+		.
+		.
+		.
+	}
+
 === Sending Template email
+
+An ApiTemplate can be defined on the MessageBus website.  In order to send mail using an ApiTemplate, copy the ApiTemplate key into your code, for example:
+
+	var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
+	client.TemplateKey = "24E26340A4E6012E8C2940406818E8C7";
+
+	try {
+		using(client) {
+			var email = new MessageBusTemplateEmail();
+                	email.MergeFields.Add("%EMAIL%", "joe@example.com");
+                	email.MergeFields.Add("%NAME%", "Joe Soap");
+                	client.Send(email);			
+		}
+	} catch (WebException e) { // This exception occurs in the event of a server error.
+		.
+		.
+		.	
+	}
 
 == Advanced Usage
 
 === Registering IMessageBusClient with and IoC Container
 
 === Logging
+
+== Debugging
+
 
 == More Info
 
