@@ -2,7 +2,7 @@
 
 == Downloading the DLL
 
-  The dll can be downloaded from https://github.com/downloads/messagebus/messagebus_csharp_api/MessageBus.dll
+The dll can be downloaded from (https://github.com/downloads/messagebus/messagebus_csharp_api/MessageBus.dll)
 
 == Downloading the Source Code
 
@@ -112,7 +112,7 @@ been sent.  The statues are returned in the same order they were sent.
 
 This is an example of handling the returned events:
 
-First Define a method to be called when messages are transmitted:
+First define a method to be called when messages are transmitted:
 
   void OnTransmitted(IMessageBusTransmissionEvent transmissionEvent) {
 
