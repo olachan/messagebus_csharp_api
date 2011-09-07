@@ -92,15 +92,24 @@ namespace MessageBus.Impl {
         }
 
         public bool Send(MessageBusEmail email) {
-            AutoCorrect(email);
             Validate(email);
+            return Send(new BatchEmailMessage(email));
+        }
+
+        public bool Send(MessageBusTemplateEmail email) {
+            Validate(email);
+            return Send(new BatchEmailMessage(email));
+        }
+
+        private bool Send(BatchEmailMessage email) {
+
             lock (this) {
                 var result = 0;
                 if (CurrentRequest == null) {
                     CurrentRequest = new BatchEmailRequest(this);
                 }
 
-                CurrentRequest.messages.Add(new BatchEmailMessage(email));
+                CurrentRequest.messages.Add(email);
 
                 if (CurrentRequest.messageCount >= EmailBufferSize) {
                     var response = HttpClient.SendEmails(CurrentRequest);
@@ -135,13 +144,7 @@ namespace MessageBus.Impl {
             Flush();
         }
 
-        private void AutoCorrect(MessageBusEmail email) {
-            if (!String.IsNullOrEmpty(TemplateKey) && !email.MergeFields.ContainsKey("%EMAIL%")) {
-                email.MergeFields["%EMAIL%"] = email.ToEmail;
-            }
-        }
-
-        private void Validate(MessageBusEmail email) {
+        private void Validate(MessageBusTemplateEmail email) {
             if (SkipValidation) return;
             string msg = "";
 
@@ -152,24 +155,12 @@ namespace MessageBus.Impl {
                 msg = "ApiVersion is required";
             }
 
-            if (String.IsNullOrEmpty(FromEmail) && String.IsNullOrEmpty(email.FromEmail)) {
-                msg = "From Email is required";
+            if (String.IsNullOrEmpty(TemplateKey)) {
+                msg = "A TemplateKey must be supplied when sending templated email";
             }
 
-            if (String.IsNullOrEmpty(email.Subject)) {
-                msg = "Subject is required";
-            }
-
-            if (String.IsNullOrEmpty(email.ToEmail)) {
-                msg = "ToEmail is required";
-            }
-
-            if (String.IsNullOrEmpty(email.PlaintextBody) && String.IsNullOrEmpty(email.HtmlBody) && String.IsNullOrEmpty(TemplateKey)) {
-                msg = "HtmlBody or PlaintextBody is required unless a TemplateKey is supplied";
-            }
-
-            if (!String.IsNullOrEmpty(TemplateKey) && email.MergeFields.Count == 0) {
-                msg = "Merge Fields must be supplied if a TemplateKey is specified";
+            if (!email.MergeFields.ContainsKey("%EMAIL%")) {
+                msg = "The %EMAIL% key is required";
             }
 
             if (email.MergeFields.Count > 0) {
@@ -185,6 +176,59 @@ namespace MessageBus.Impl {
             if (msg.Length > 0) {
                 Logger.error(msg);
                 throw new MessageBusValidationFailedException(msg);
+            }
+
+            if (!String.IsNullOrEmpty(FromEmail)) {
+                Logger.warning("'FromEmail' is ignored when sending template email");
+            }
+
+            if (!String.IsNullOrEmpty(FromName)) {
+                Logger.warning("'FromName' is ignored when sending template email");
+            }
+
+            if (Tags != null && Tags.Length > 0) {
+                Logger.warning("Tags are ignored when sending template email");
+            }
+        }
+
+        private void Validate(MessageBusEmail email) {
+            if (SkipValidation) return;
+            string msg = "";
+
+            if (String.IsNullOrEmpty(ApiKey)) {
+                msg = "ApiKey is required";
+            }
+            if (String.IsNullOrEmpty(ApiVersion)) {
+                msg = "ApiVersion is required";
+            }
+
+            if (String.IsNullOrEmpty(FromEmail)) {
+                msg = "From Email is required";
+            }
+
+            if (String.IsNullOrEmpty(email.Subject)) {
+                msg = "Subject is required";
+            }
+
+            if (String.IsNullOrEmpty(email.ToEmail)) {
+                msg = "ToEmail is required";
+            }
+
+            if (String.IsNullOrEmpty(email.PlaintextBody) && String.IsNullOrEmpty(email.HtmlBody)) {
+                msg = "Either HtmlBody or PlaintextBody is required";
+            }
+
+            if (CustomHeaders.ContainsKey("message-id")) {
+                msg = "The message-id header is reserved for internal use";
+            }
+
+            if (msg.Length > 0) {
+                Logger.error(msg);
+                throw new MessageBusValidationFailedException(msg);
+            }
+
+            if (!String.IsNullOrEmpty(TemplateKey)) {
+                Logger.warning("'TemplateKey' is ignored unless sending template email");
             }
         }
     }

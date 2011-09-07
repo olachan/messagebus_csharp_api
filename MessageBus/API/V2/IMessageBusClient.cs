@@ -61,12 +61,20 @@ namespace MessageBus.API.V2 {
         bool Flush();
 
         /// <summary>
-        /// Send the specified email.  Note that this is a buffered operation.  Email is queued locally until the specified buffer size
-        /// is reached and then transferred to the server in a single batch.
+        /// Send the specified email.  
+        /// Note that this is a buffered operation.  Email is queued locally until the specified buffer size is reached and then transferred to the server in a single batch.
         /// </summary>
         /// <param name="email">The email to be sent</param>
         /// <returns>true if this operation resulted in a transmission</returns>
         bool Send(MessageBusEmail email);
+
+        /// <summary>
+        /// Send the specified template email.
+        /// Note that this is a buffered operation.  Email is queued locally until the specified buffer size is reached and then transferred to the server in a single batch.
+        /// </summary>
+        /// <param name="email">The email to the sent</param>
+        /// <returns>>true if this operation resulted in a transmission</returns>
+        bool Send(MessageBusTemplateEmail email);
 
         /// <summary>
         /// This event is triggered whenever messages are transmitted to the server.

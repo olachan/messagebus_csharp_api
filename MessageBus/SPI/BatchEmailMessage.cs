@@ -12,24 +12,20 @@ namespace MessageBus.SPI {
 
         public BatchEmailMessage(MessageBusEmail email) {
             toEmail = email.ToEmail;
-            toName = email.ToName;
             subject = email.Subject;
             plaintextBody = email.PlaintextBody;
             htmlBody = email.HtmlBody;
-            fromName = email.FromName;
-            fromEmail = email.FromEmail;
-            tags = email.Tags;
+            mergeFields = new Dictionary<string, string>(0);
+        }
+
+        public BatchEmailMessage(MessageBusTemplateEmail email) {
             mergeFields = email.MergeFields;
         }
 
         public string toEmail { get; set; }
-        public string toName { get; set; }
         public string subject { get; set; }
         public string plaintextBody { get; set; }
         public string htmlBody { get; set; }
-        public string fromName { get; set; }
-        public string fromEmail { get; set; }
-        public string[] tags { get; set; }
-        public Dictionary<string, string> mergeFields { get; set; }
+        public Dictionary<string, string> mergeFields { get; private set; }
     }
 }

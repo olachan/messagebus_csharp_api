@@ -69,7 +69,6 @@ namespace MessageBusTest.Impl {
             var result = Client.Send(new MessageBusEmail {
                 Subject = "Test",
                 ToEmail = "bob@example.com",
-                ToName = "Bob Sample",
                 PlaintextBody = "Plain Text"
             });
 
@@ -80,7 +79,6 @@ namespace MessageBusTest.Impl {
 
             Assert.AreEqual("Test", request.messages[0].subject);
             Assert.AreEqual("bob@example.com", request.messages[0].toEmail);
-            Assert.AreEqual("Bob Sample", request.messages[0].toName);
             Assert.AreEqual("Plain Text", request.messages[0].plaintextBody);
 
             Assert.AreEqual("TEST_KEY", request.apiKey);
@@ -153,8 +151,8 @@ namespace MessageBusTest.Impl {
 
         [TestMethod]
         public void ValidationPassesIfAllRequiredFieldsAreSupplied() {
+            Client.FromEmail = "alice@example.com";
             Client.Send(new MessageBusEmail {
-                FromEmail = "alice@example.com",
                 ToEmail = "bob@example.com",
                 Subject = "Test",
                 PlaintextBody = "Plain Text Email Body"
@@ -165,23 +163,26 @@ namespace MessageBusTest.Impl {
         public void ChecksForThePresenceOfMergeFieldsWhenATemplateKeyIsSpecifiedAndWorksIfPresent() {
             Client.TemplateKey = "TEST";
             Client.FromEmail = "alice@example.com";
-            var email = new MessageBusEmail {
-                ToEmail = "bob@example.com",
-                Subject = "Test"
+            var email = new MessageBusTemplateEmail {
             };
             email.MergeFields.Add("%EMAIL%", "bob@example.com");
             Client.Send(email);
         }
 
         [TestMethod]
-        public void AutomaticallyAddsTheEmailMergeFieldIfMissing() {
-            Client.TemplateKey = "TEST";
-            Client.FromEmail = "alice@example.com";
-            var email = new MessageBusEmail {
-                ToEmail = "bob@example.com",
-                Subject = "Test"
-            };
-            Client.Send(email);
+        public void ThrowsAnErrorIfEmailMergeFieldIfMissing() {
+            try {
+                Client.TemplateKey = "TEST";
+                Client.FromEmail = "alice@example.com";
+                var email = new MessageBusEmail {
+                    ToEmail = "bob@example.com",
+                    Subject = "Test"
+                };
+                Client.Send(email);
+            } catch (MessageBusValidationFailedException e) {
+                return;
+            }
+            Assert.Fail("Expected Exception to be thrown");
         }
 
         [TestMethod]
@@ -189,9 +190,7 @@ namespace MessageBusTest.Impl {
             try {
                 Client.TemplateKey = "TEST";
                 Client.FromEmail = "alice@example.com";
-                var email = new MessageBusEmail {
-                    ToEmail = "bob@example.com",
-                    Subject = "Test"
+                var email = new MessageBusTemplateEmail {
                 };
                 email.MergeFields.Add("EMAIL", "bob@example.com");
                 Client.Send(email);
