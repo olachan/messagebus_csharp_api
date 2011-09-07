@@ -10,7 +10,7 @@
 
 === Creating an instance of the MessageBus email client:
 
-	var client = MessageBus.API.MessageBus.CreateClient("<Your API Key Here>");
+  var client = MessageBus.API.MessageBus.CreateClient("<Your API Key Here>");
 
 (For more options please see "Advanced Usage".
 
@@ -21,42 +21,42 @@ The MessageBus API buffers e-mail on the client and transmits email to the serve
 
 To set the number of emails to buffer before automatically sending (the default value is 20):
 
-	client.EmailBufferSize = 100; // sets the number of emails to buffer before sending to 100.
+  client.EmailBufferSize = 100; // sets the number of emails to buffer before sending to 100.
 
 Adding mail to the buffer is done as follows:
 
-	client.Send(new MessageBusEmail {
-                    ToEmail = "alice@example.com",
-                    Subject = "Test from Messagebus",
-                    PlaintextBody = "Hello",
-                    HtmlBody = "<html><body><h1>Hello!</h1></body></htm>"
-                });
+  client.Send(new MessageBusEmail {
+    ToEmail = "alice@example.com",
+    Subject = "Test from Messagebus",
+    PlaintextBody = "Hello",
+    HtmlBody = "<html><body><h1>Hello!</h1></body></htm>"
+  });
 
 Typically sending occurs in a loop over a list of recipients.  Mail is transmitted to the server each time the buffer is full, but you will need to Flush the buffer once the looping is complete to ensure that the last few items in the buffer are transmitted.  This is achieved as follows:
 
-	client.Flush();
+  client.Flush();
 
 Alternatively, the loop can be surrounded with a using {} block as follows:
 
-	var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
-	client.FromEmail = "test@example.com";
+  var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
+  client.FromEmail = "test@example.com";
 
-	try {
-		using(client) {
-			foreach(var item in MyMailingList) {
-				client.Send(new MessageBusEmail {
-					ToEmail = item.EmailAddress,
-					Subject = "Hello from MessageBus",
-					PlaintextBody = "Hello and Welcome!",
-					HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
-				});
-			}
-		}
-	} catch (WebException e) {  // This exception occurs in the event of a server error.
-		.
-		.
-		.
-	}	
+  try {
+    using(client) {
+      foreach(var item in MyMailingList) {
+        client.Send(new MessageBusEmail {
+          ToEmail = item.EmailAddress,
+          Subject = "Hello from MessageBus",
+	  PlaintextBody = "Hello and Welcome!",
+	  HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
+	});
+      }
+    }
+  } catch (WebException e) {  // This exception occurs in the event of a server error.
+    .
+    .
+    .
+  }	
 	
 === Sending pre-formatted email
 
