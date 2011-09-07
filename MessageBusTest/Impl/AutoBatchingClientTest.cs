@@ -148,7 +148,7 @@ namespace MessageBusTest.Impl {
             } catch (MessageBusValidationFailedException e) {
                 return;
             }
-            Assert.Fail("Expected Exception to bew thrown");
+            Assert.Fail("Expected Exception to be thrown");
         }
 
         [TestMethod]
@@ -198,7 +198,24 @@ namespace MessageBusTest.Impl {
             } catch (MessageBusValidationFailedException e) {
                 return;
             }
-            Assert.Fail("Expected Exception to bew thrown");
+            Assert.Fail("Expected Exception to be thrown");
+        }
+
+        [TestMethod]
+        public void ThrowsAnErrorIfACustomMessageIdHeaderIsSupplied() {
+            try {
+                Client.CustomHeaders.Add("message-id", "some message id");
+                Client.FromEmail = "alice@example.com";
+                var email = new MessageBusEmail {
+                    ToEmail = "bob@example.com",
+                    Subject = "Test",
+                    PlaintextBody = "Test"
+                };
+                Client.Send(email);
+            } catch (MessageBusValidationFailedException e) {
+                return;
+            }
+            Assert.Fail("Expected Exception to be thrown");
         }
 
         void Transmitted(IMessageBusTransmissionEvent transmissionEvent) {

@@ -26,5 +26,19 @@ namespace MessageBusTest {
             Assert.IsNotNull(mb);
             Assert.AreEqual("2.2", mb.ApiVersion);
         }
+
+        [TestMethod]
+        public void CanCreateANewMessageBusClientWithACustomLogger() {
+            var mb = MessageBus.API.MessageBus.CreateClient("ABCD-1234-1234-ABCD", new ConsoleLogger());
+            Assert.IsNotNull(mb);
+            Assert.AreEqual("2.2", mb.ApiVersion);
+        }
+
+        [TestMethod]
+        public void CanCreateANewMessageBusClientWithAVersionAndCustomLogger() {
+            var mb = MessageBus.API.MessageBus.CreateClient("ABCD-1234-1234-ABCD", 2, new ConsoleLogger());
+            Assert.IsNotNull(mb);
+            Assert.AreEqual("2.2", mb.ApiVersion);
+        }
     }
 }

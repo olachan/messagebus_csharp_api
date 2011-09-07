@@ -17,5 +17,13 @@ namespace MessageBus.API {
         public static IMessageBusClient CreateClient(string apiKey, int majorVersion) {
             return new AutoBatchingClient(apiKey, string.Format("{0}.{1}", majorVersion, MINOR_VERSION));
         }
+
+        public static IMessageBusClient CreateClient(string apiKey, ILogger logger) {
+            return new AutoBatchingClient(apiKey, string.Format("{0}.{1}", MAJOR_VERSION, MINOR_VERSION), logger);
+        }
+
+        public static IMessageBusClient CreateClient(string apiKey, int majorVersion, ILogger logger) {
+            return new AutoBatchingClient(apiKey, string.Format("{0}.{1}", majorVersion, MINOR_VERSION), logger);
+        }
     }
 }

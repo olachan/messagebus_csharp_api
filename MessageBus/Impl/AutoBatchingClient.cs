@@ -27,12 +27,15 @@ namespace MessageBus.Impl {
         private BatchEmailRequest CurrentRequest;
 
         public AutoBatchingClient(string apiKey, string version)
-            : this(apiKey, version, new SimpleHttpClient(), new ConsoleLogger()) {
-
+            : this(apiKey, version, new SimpleHttpClient(), new NullLogger()) {
         }
 
         public AutoBatchingClient(string apiKey, string version, IMessageBusHttpClient httpClient)
-            : this(apiKey, version, httpClient, new ConsoleLogger()) {
+            : this(apiKey, version, httpClient, new NullLogger()) {
+        }
+
+        public AutoBatchingClient(string apiKey, string version, ILogger logger)
+            : this(apiKey, version, new SimpleHttpClient(), logger) {
         }
 
         public AutoBatchingClient(string apiKey, string version, IMessageBusHttpClient httpClient, ILogger logger) {
@@ -41,7 +44,8 @@ namespace MessageBus.Impl {
             HttpClient = httpClient;
             Logger = logger;
             EmailBufferSize = 20;
-            Logger.debug(String.Format("AutoBatchingClient created for version {0} with http client class {1}", version, httpClient.GetType().Name));
+            CustomHeaders = new Dictionary<string, string>();
+            Logger.info(String.Format("AutoBatchingClient created for version {0} with http client class {1}", version, httpClient.GetType().Name));
         }
 
         public bool SkipValidation { private get; set; }
@@ -172,6 +176,10 @@ namespace MessageBus.Impl {
                 if (email.MergeFields.Any(pair => !pair.Key.StartsWith("%") || !pair.Key.EndsWith("%"))) {
                     msg = "Merge Fields must be surrounded with %% e.g. %FIELD%";
                 }
+            }
+
+            if (CustomHeaders.ContainsKey("message-id")) {
+                msg = "The message-id header is reserved for internal use";
             }
 
             if (msg.Length > 0) {
