@@ -26,18 +26,20 @@ namespace MessageBusExample
         private Label lblMID;
         private TextBox tbMessageID;
         private GroupBox gbMessage;
-        private Label label1;
+        private Label lblFromEmail;
         private TextBox tbFromEmail;
         private TextBox tbToEmail;
         private TextBox tbSubject;
-        private Label label3;
-        private Label label2;
+        private Label lblPlaintextBody;
+        private Label lblHtmlBody;
         private TextBox tbPlaintext;
         private TextBox tbHtmlBody;
-        private Label label5;
-        private Label lbApiKey;
+        private Label lblSubject;
+        private Label lblApiKey;
         private TextBox tbApiKey;
-        private Label label4;
+        private Label lblErrorMessage;
+        private TextBox tbErrorMessage;
+        private Label lblToEmail;
     
         public ExampleForm1()
         {
@@ -48,6 +50,8 @@ namespace MessageBusExample
         {
             this.btnSendMessage = new System.Windows.Forms.Button();
             this.gbMessageStatus = new System.Windows.Forms.GroupBox();
+            this.lblErrorMessage = new System.Windows.Forms.Label();
+            this.tbErrorMessage = new System.Windows.Forms.TextBox();
             this.lblMID = new System.Windows.Forms.Label();
             this.tbMessageID = new System.Windows.Forms.TextBox();
             this.lblFailed = new System.Windows.Forms.Label();
@@ -55,18 +59,18 @@ namespace MessageBusExample
             this.lblSuccessCount = new System.Windows.Forms.Label();
             this.tbSuccessCount = new System.Windows.Forms.TextBox();
             this.gbMessage = new System.Windows.Forms.GroupBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblApiKey = new System.Windows.Forms.Label();
+            this.tbApiKey = new System.Windows.Forms.TextBox();
+            this.lblSubject = new System.Windows.Forms.Label();
+            this.lblToEmail = new System.Windows.Forms.Label();
+            this.lblPlaintextBody = new System.Windows.Forms.Label();
+            this.lblHtmlBody = new System.Windows.Forms.Label();
             this.tbPlaintext = new System.Windows.Forms.TextBox();
             this.tbHtmlBody = new System.Windows.Forms.TextBox();
             this.tbSubject = new System.Windows.Forms.TextBox();
             this.tbToEmail = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblFromEmail = new System.Windows.Forms.Label();
             this.tbFromEmail = new System.Windows.Forms.TextBox();
-            this.tbApiKey = new System.Windows.Forms.TextBox();
-            this.lbApiKey = new System.Windows.Forms.Label();
             this.gbMessageStatus.SuspendLayout();
             this.gbMessage.SuspendLayout();
             this.SuspendLayout();
@@ -83,6 +87,8 @@ namespace MessageBusExample
             // 
             // gbMessageStatus
             // 
+            this.gbMessageStatus.Controls.Add(this.lblErrorMessage);
+            this.gbMessageStatus.Controls.Add(this.tbErrorMessage);
             this.gbMessageStatus.Controls.Add(this.lblMID);
             this.gbMessageStatus.Controls.Add(this.tbMessageID);
             this.gbMessageStatus.Controls.Add(this.lblFailed);
@@ -95,6 +101,23 @@ namespace MessageBusExample
             this.gbMessageStatus.TabIndex = 1;
             this.gbMessageStatus.TabStop = false;
             this.gbMessageStatus.Text = "Message Status";
+            // 
+            // lbErrorMessage
+            // 
+            this.lblErrorMessage.AutoSize = true;
+            this.lblErrorMessage.Location = new System.Drawing.Point(228, 46);
+            this.lblErrorMessage.Name = "lbErrorMessage";
+            this.lblErrorMessage.Size = new System.Drawing.Size(55, 13);
+            this.lblErrorMessage.TabIndex = 7;
+            this.lblErrorMessage.Text = "Error Msg:";
+            // 
+            // tbErrorMessage
+            // 
+            this.tbErrorMessage.Location = new System.Drawing.Point(301, 42);
+            this.tbErrorMessage.Name = "tbErrorMessage";
+            this.tbErrorMessage.ReadOnly = true;
+            this.tbErrorMessage.Size = new System.Drawing.Size(448, 20);
+            this.tbErrorMessage.TabIndex = 6;
             // 
             // lblMID
             // 
@@ -110,10 +133,9 @@ namespace MessageBusExample
             this.tbMessageID.Location = new System.Drawing.Point(301, 19);
             this.tbMessageID.Name = "tbMessageID";
             this.tbMessageID.ReadOnly = true;
-            this.tbMessageID.Size = new System.Drawing.Size(266, 20);
+            this.tbMessageID.Size = new System.Drawing.Size(232, 20);
             this.tbMessageID.TabIndex = 4;
             this.tbMessageID.Text = "<Message-ID>";
-            this.tbMessageID.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // lblFailed
             // 
@@ -155,17 +177,17 @@ namespace MessageBusExample
             // 
             // gbMessage
             // 
-            this.gbMessage.Controls.Add(this.lbApiKey);
+            this.gbMessage.Controls.Add(this.lblApiKey);
             this.gbMessage.Controls.Add(this.tbApiKey);
-            this.gbMessage.Controls.Add(this.label5);
-            this.gbMessage.Controls.Add(this.label4);
-            this.gbMessage.Controls.Add(this.label3);
-            this.gbMessage.Controls.Add(this.label2);
+            this.gbMessage.Controls.Add(this.lblSubject);
+            this.gbMessage.Controls.Add(this.lblToEmail);
+            this.gbMessage.Controls.Add(this.lblPlaintextBody);
+            this.gbMessage.Controls.Add(this.lblHtmlBody);
             this.gbMessage.Controls.Add(this.tbPlaintext);
             this.gbMessage.Controls.Add(this.tbHtmlBody);
             this.gbMessage.Controls.Add(this.tbSubject);
             this.gbMessage.Controls.Add(this.tbToEmail);
-            this.gbMessage.Controls.Add(this.label1);
+            this.gbMessage.Controls.Add(this.lblFromEmail);
             this.gbMessage.Controls.Add(this.tbFromEmail);
             this.gbMessage.Location = new System.Drawing.Point(10, 12);
             this.gbMessage.Name = "gbMessage";
@@ -174,41 +196,58 @@ namespace MessageBusExample
             this.gbMessage.TabStop = false;
             this.gbMessage.Text = "Message";
             // 
-            // label5
+            // lbApiKey
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(5, 100);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(46, 13);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "Subject:";
+            this.lblApiKey.AutoSize = true;
+            this.lblApiKey.Location = new System.Drawing.Point(5, 22);
+            this.lblApiKey.Name = "lbApiKey";
+            this.lblApiKey.Size = new System.Drawing.Size(48, 13);
+            this.lblApiKey.TabIndex = 11;
+            this.lblApiKey.Text = "API Key:";
             // 
-            // label4
+            // tbApiKey
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(5, 74);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(51, 13);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "To Email:";
+            this.tbApiKey.Location = new System.Drawing.Point(72, 19);
+            this.tbApiKey.Name = "tbApiKey";
+            this.tbApiKey.Size = new System.Drawing.Size(221, 20);
+            this.tbApiKey.TabIndex = 10;
+            this.tbApiKey.Text = "<Put API Key Here>";
             // 
-            // label3
+            // lbSubject
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(282, 171);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(84, 13);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "Plain Text Body:";
+            this.lblSubject.AutoSize = true;
+            this.lblSubject.Location = new System.Drawing.Point(5, 100);
+            this.lblSubject.Name = "lbSubject";
+            this.lblSubject.Size = new System.Drawing.Size(46, 13);
+            this.lblSubject.TabIndex = 9;
+            this.lblSubject.Text = "Subject:";
             // 
-            // label2
+            // lbToEmail
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(299, 22);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(67, 13);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "HTML Body:";
+            this.lblToEmail.AutoSize = true;
+            this.lblToEmail.Location = new System.Drawing.Point(5, 74);
+            this.lblToEmail.Name = "lbToEmail";
+            this.lblToEmail.Size = new System.Drawing.Size(51, 13);
+            this.lblToEmail.TabIndex = 8;
+            this.lblToEmail.Text = "To Email:";
+            // 
+            // lbPlaintextBody
+            // 
+            this.lblPlaintextBody.AutoSize = true;
+            this.lblPlaintextBody.Location = new System.Drawing.Point(282, 171);
+            this.lblPlaintextBody.Name = "lbPlaintextBody";
+            this.lblPlaintextBody.Size = new System.Drawing.Size(77, 13);
+            this.lblPlaintextBody.TabIndex = 7;
+            this.lblPlaintextBody.Text = "Plaintext Body:";
+            // 
+            // lbHtmlBody
+            // 
+            this.lblHtmlBody.AutoSize = true;
+            this.lblHtmlBody.Location = new System.Drawing.Point(299, 22);
+            this.lblHtmlBody.Name = "lbHtmlBody";
+            this.lblHtmlBody.Size = new System.Drawing.Size(67, 13);
+            this.lblHtmlBody.TabIndex = 6;
+            this.lblHtmlBody.Text = "HTML Body:";
             // 
             // tbPlaintext
             // 
@@ -232,7 +271,7 @@ namespace MessageBusExample
             // 
             this.tbSubject.Location = new System.Drawing.Point(72, 97);
             this.tbSubject.Name = "tbSubject";
-            this.tbSubject.Size = new System.Drawing.Size(205, 20);
+            this.tbSubject.Size = new System.Drawing.Size(221, 20);
             this.tbSubject.TabIndex = 3;
             this.tbSubject.Text = "API test email";
             // 
@@ -240,43 +279,26 @@ namespace MessageBusExample
             // 
             this.tbToEmail.Location = new System.Drawing.Point(72, 71);
             this.tbToEmail.Name = "tbToEmail";
-            this.tbToEmail.Size = new System.Drawing.Size(205, 20);
+            this.tbToEmail.Size = new System.Drawing.Size(221, 20);
             this.tbToEmail.TabIndex = 2;
             this.tbToEmail.Text = "apitest1@messagebus.com";
             // 
-            // label1
+            // lbFromEmail
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(5, 48);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(61, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "From Email:";
+            this.lblFromEmail.AutoSize = true;
+            this.lblFromEmail.Location = new System.Drawing.Point(5, 48);
+            this.lblFromEmail.Name = "lbFromEmail";
+            this.lblFromEmail.Size = new System.Drawing.Size(61, 13);
+            this.lblFromEmail.TabIndex = 1;
+            this.lblFromEmail.Text = "From Email:";
             // 
             // tbFromEmail
             // 
             this.tbFromEmail.Location = new System.Drawing.Point(72, 45);
             this.tbFromEmail.Name = "tbFromEmail";
-            this.tbFromEmail.Size = new System.Drawing.Size(205, 20);
+            this.tbFromEmail.Size = new System.Drawing.Size(221, 20);
             this.tbFromEmail.TabIndex = 0;
             this.tbFromEmail.Text = "test@messagebus.com";
-            // 
-            // tbApiKey
-            // 
-            this.tbApiKey.Location = new System.Drawing.Point(72, 19);
-            this.tbApiKey.Name = "tbApiKey";
-            this.tbApiKey.Size = new System.Drawing.Size(205, 20);
-            this.tbApiKey.TabIndex = 10;
-            this.tbApiKey.Text = "<Put API Key Here>";
-            // 
-            // lbApiKey
-            // 
-            this.lbApiKey.AutoSize = true;
-            this.lbApiKey.Location = new System.Drawing.Point(5, 22);
-            this.lbApiKey.Name = "lbApiKey";
-            this.lbApiKey.Size = new System.Drawing.Size(48, 13);
-            this.lbApiKey.TabIndex = 11;
-            this.lbApiKey.Text = "API Key:";
             // 
             // ExampleForm1
             // 
@@ -313,21 +335,28 @@ namespace MessageBusExample
             var mb = MessageBus.API.MessageBus.CreateClient(tbApiKey.Text);
             mb.Transmitted += new MessageTransmissionHandler(mb_Transmitted);
 
-            var debug = mb as IMessageBusDebugging;
-            debug.Domain = "https://apitest.messagebus.com";
-            debug.SslVerifyPeer = false;
-            debug.Credentials = new NetworkCredential("demo", "319MBPmiller");
             mb.FromEmail = tbFromEmail.Text;
-            using (mb)
+            try
             {
-                mb.Send(new MessageBusEmail
+                using (mb)
                 {
-                    ToEmail = tbToEmail.Text,
-                    Subject = tbSubject.Text,
-                    HtmlBody = tbHtmlBody.Text,
-                    PlaintextBody = tbPlaintext.Text
-                });
+                    mb.Send(new MessageBusEmail
+                    {
+                        ToEmail = tbToEmail.Text,
+                        Subject = tbSubject.Text,
+                        HtmlBody = tbHtmlBody.Text,
+                        PlaintextBody = tbPlaintext.Text
+                    });
+                }
             }
+            catch (WebException we)
+            {
+                tbFailedCount.Text = "1";
+                tbSuccessCount.Text = "0";
+                tbMessageID.Text = "Error occurred";
+                tbErrorMessage.Text = we.Message;
+            }
+
             return;
         }
 
@@ -340,12 +369,14 @@ namespace MessageBusExample
 
             tbFailedCount.Text = transmissionEvent.FailureCount.ToString();
             tbSuccessCount.Text = transmissionEvent.SuccessCount.ToString();
+            tbErrorMessage.Text = string.Empty;
 
             if (transmissionEvent.Statuses.Count == 1)
             {
                 tbMessageID.Text = transmissionEvent.Statuses[0].MessageId;
             }
         }
+
 
     }
 }
