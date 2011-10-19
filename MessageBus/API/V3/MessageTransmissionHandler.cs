@@ -1,4 +1,4 @@
-﻿namespace MessageBus.API.V2 {
+﻿namespace MessageBus.API.V3 {
     /// <summary>
     /// Event Delegate
     /// </summary>

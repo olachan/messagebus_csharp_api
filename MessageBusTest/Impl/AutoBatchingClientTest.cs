@@ -1,6 +1,6 @@
 ﻿using MessageBus.API;
-using MessageBus.API.V2;
-using MessageBus.API.V2.Debug;
+using MessageBus.API.V3;
+using MessageBus.API.V3.Debug;
 using MessageBus.Impl;
 using MessageBus.SPI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,18 +21,13 @@ namespace MessageBusTest.Impl {
         public void MyTestInitialize() {
             MockHttpClient = MockRepository.GenerateMock<IMessageBusHttpClient>();
             MockLogger = MockRepository.GenerateMock<ILogger>();
-            Client = new AutoBatchingClient("TEST_KEY", "2.2", MockHttpClient, MockLogger);
+            Client = new AutoBatchingClient("TEST_KEY", MockHttpClient, MockLogger);
         }
 
 
         [TestMethod]
         public void CanRetrieveApiKey() {
             Assert.AreEqual("TEST_KEY", Client.ApiKey);
-        }
-
-        [TestMethod]
-        public void CanRetrieveApiVersion() {
-            Assert.AreEqual("2.2", Client.ApiVersion);
         }
 
         [TestMethod]
@@ -45,7 +40,7 @@ namespace MessageBusTest.Impl {
         [TestMethod]
         public void CallingSendWithABufferSizeOfOneResultsInSend() {
 
-            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailRequest>.Is.Anything)).Return(new BatchEmailResponse {
+            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailSendRequest>.Is.Anything)).Return(new BatchEmailResponse {
                 failureCount = 0,
                 successCount = 1,
                 statusMessage = "",
@@ -60,34 +55,30 @@ namespace MessageBusTest.Impl {
             Client.EmailBufferSize = 1;
             (Client as IMessageBusDebugging).SkipValidation = true;
 
-            Client.FromEmail = "alice@example.com";
-            Client.FromName = "Alice Sample";
-            Client.Tags = new[] { "TAGA", "TAGB" };
-
             Client.Transmitted += Transmitted;
 
             var result = Client.Send(new MessageBusEmail {
                 Subject = "Test",
                 ToEmail = "bob@example.com",
-                PlaintextBody = "Plain Text"
+                PlaintextBody = "Plain Text",
+                FromEmail = "alice@example.com",
+                FromName = "Alice Sample",
+                Tags = new[] { "TAGA", "TAGB" },
             });
 
-            var args = MockHttpClient.GetArgumentsForCallsMadeOn(x => x.SendEmails(Arg<BatchEmailRequest>.Is.Anything));
-            var request = args[0][0] as BatchEmailRequest;
+            var args = MockHttpClient.GetArgumentsForCallsMadeOn(x => x.SendEmails(Arg<BatchEmailSendRequest>.Is.Anything));
+            var request = args[0][0] as BatchEmailSendRequest;
 
-            Assert.AreEqual(1, request.messageCount);
+            Assert.AreEqual(1, request.messages.Count);
 
             Assert.AreEqual("Test", request.messages[0].subject);
             Assert.AreEqual("bob@example.com", request.messages[0].toEmail);
             Assert.AreEqual("Plain Text", request.messages[0].plaintextBody);
 
-            Assert.AreEqual("TEST_KEY", request.apiKey);
-            Assert.AreEqual("2.2", request.apiVersion);
-
-            Assert.AreEqual("alice@example.com", request.fromEmail);
-            Assert.AreEqual("Alice Sample", request.fromName);
-            Assert.AreEqual("TAGA", request.tags[0]);
-            Assert.AreEqual("TAGB", request.tags[1]);
+            Assert.AreEqual("alice@example.com", request.messages[0].fromEmail);
+            Assert.AreEqual("Alice Sample", request.messages[0].fromName);
+            Assert.AreEqual("TAGA", request.messages[0].tags[0]);
+            Assert.AreEqual("TAGB", request.messages[0].tags[1]);
 
             Assert.IsTrue(result);
 
@@ -98,7 +89,7 @@ namespace MessageBusTest.Impl {
 
         [TestMethod]
         public void CallingSendWithBufferSizeOfTwoDoesNotSend() {
-            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailRequest>.Is.Anything)).Repeat.Never();
+            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailSendRequest>.Is.Anything)).Repeat.Never();
 
             Client.EmailBufferSize = 2;
             (Client as IMessageBusDebugging).SkipValidation = true;
@@ -108,7 +99,7 @@ namespace MessageBusTest.Impl {
 
         [TestMethod]
         public void CallingSendWithBufferSizeOfTwoDoesNotSendUntilFlush() {
-            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailRequest>.Is.Anything)).Repeat.Once();
+            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailSendRequest>.Is.Anything)).Repeat.Once();
 
             Client.EmailBufferSize = 2;
             (Client as IMessageBusDebugging).SkipValidation = true;
@@ -119,7 +110,7 @@ namespace MessageBusTest.Impl {
 
         [TestMethod]
         public void CallingSendWithBufferSizeOfTwoInAUsingBlockFlushesAtTheEnd() {
-            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailRequest>.Is.Anything)).Repeat.Once();
+            MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailSendRequest>.Is.Anything)).Repeat.Once();
 
             Client.EmailBufferSize = 2;
             (Client as IMessageBusDebugging).SkipValidation = true;
@@ -151,8 +142,8 @@ namespace MessageBusTest.Impl {
 
         [TestMethod]
         public void ValidationPassesIfAllRequiredFieldsAreSupplied() {
-            Client.FromEmail = "alice@example.com";
             Client.Send(new MessageBusEmail {
+                FromEmail = "alice@example.com",
                 ToEmail = "bob@example.com",
                 Subject = "Test",
                 PlaintextBody = "Plain Text Email Body"
@@ -161,9 +152,10 @@ namespace MessageBusTest.Impl {
 
         [TestMethod]
         public void ChecksForThePresenceOfMergeFieldsWhenATemplateKeyIsSpecifiedAndWorksIfPresent() {
-            Client.TemplateKey = "TEST";
-            Client.FromEmail = "alice@example.com";
+            
             var email = new MessageBusTemplateEmail {
+                TemplateKey = "TEST",
+                ToEmail = "alice@example.com"
             };
             email.MergeFields.Add("%EMAIL%", "bob@example.com");
             Client.Send(email);
@@ -172,11 +164,11 @@ namespace MessageBusTest.Impl {
         [TestMethod]
         public void ThrowsAnErrorIfEmailMergeFieldIfMissing() {
             try {
-                Client.TemplateKey = "TEST";
-                Client.FromEmail = "alice@example.com";
+                
                 var email = new MessageBusEmail {
                     ToEmail = "bob@example.com",
-                    Subject = "Test"
+                    Subject = "Test",
+                    FromEmail = "alice@example.com"
                 };
                 Client.Send(email);
             } catch (MessageBusValidationFailedException e) {
@@ -188,9 +180,10 @@ namespace MessageBusTest.Impl {
         [TestMethod]
         public void ThrowsAnErrorIfTheSuppliedMergeFieldsDoNotStartAndEndWithPercentSymbols() {
             try {
-                Client.TemplateKey = "TEST";
-                Client.FromEmail = "alice@example.com";
+                
                 var email = new MessageBusTemplateEmail {
+                    TemplateKey = "TEST",
+                    ToEmail = "alice@example.com"
                 };
                 email.MergeFields.Add("EMAIL", "bob@example.com");
                 Client.Send(email);
@@ -203,13 +196,13 @@ namespace MessageBusTest.Impl {
         [TestMethod]
         public void ThrowsAnErrorIfACustomMessageIdHeaderIsSupplied() {
             try {
-                Client.CustomHeaders.Add("message-id", "some message id");
-                Client.FromEmail = "alice@example.com";
                 var email = new MessageBusEmail {
+                    FromEmail = "alice@example.com",
                     ToEmail = "bob@example.com",
                     Subject = "Test",
                     PlaintextBody = "Test"
                 };
+                email.CustomHeaders.Add("message-id", "some message id");
                 Client.Send(email);
             } catch (MessageBusValidationFailedException e) {
                 return;

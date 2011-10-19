@@ -8,9 +8,8 @@ using System.Text;
 using System.Windows.Forms;
 
 using MessageBus.API;
-using MessageBus.API.V2;
-using MessageBus.API.V2.Debug;
 using System.Net;
+using MessageBus.API.V3;
 
 
 namespace MessageBusExample
@@ -335,13 +334,13 @@ namespace MessageBusExample
             var mb = MessageBus.API.MessageBus.CreateClient(tbApiKey.Text);
             mb.Transmitted += new MessageTransmissionHandler(mb_Transmitted);
 
-            mb.FromEmail = tbFromEmail.Text;
             try
             {
                 using (mb)
                 {
                     mb.Send(new MessageBusEmail
                     {
+                        FromEmail = tbFromEmail.Text,
                         ToEmail = tbToEmail.Text,
                         Subject = tbSubject.Text,
                         HtmlBody = tbHtmlBody.Text,

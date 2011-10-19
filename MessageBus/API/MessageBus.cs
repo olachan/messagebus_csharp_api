@@ -1,4 +1,4 @@
-using MessageBus.API.V2;
+using MessageBus.API.V3;
 using MessageBus.Impl;
 
 namespace MessageBus.API {
@@ -7,23 +7,12 @@ namespace MessageBus.API {
     /// </summary>
     public sealed class MessageBus {
 
-        public const int MAJOR_VERSION = 2;
-        public const int MINOR_VERSION = 2;
-
         public static IMessageBusClient CreateClient(string apiKey) {
-            return new AutoBatchingClient(apiKey, string.Format("{0}.{1}", MAJOR_VERSION, MINOR_VERSION));
-        }
-
-        public static IMessageBusClient CreateClient(string apiKey, int majorVersion) {
-            return new AutoBatchingClient(apiKey, string.Format("{0}.{1}", majorVersion, MINOR_VERSION));
+            return new AutoBatchingClient(apiKey);
         }
 
         public static IMessageBusClient CreateClient(string apiKey, ILogger logger) {
-            return new AutoBatchingClient(apiKey, string.Format("{0}.{1}", MAJOR_VERSION, MINOR_VERSION), logger);
-        }
-
-        public static IMessageBusClient CreateClient(string apiKey, int majorVersion, ILogger logger) {
-            return new AutoBatchingClient(apiKey, string.Format("{0}.{1}", majorVersion, MINOR_VERSION), logger);
+            return new AutoBatchingClient(apiKey, logger);
         }
     }
 }

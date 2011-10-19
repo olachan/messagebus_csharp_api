@@ -49,23 +49,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\V2\MessageBusTemplateEmail.cs" />
-    <Compile Include="API\V2\Debug\IMessageBusDebugging.cs" />
-    <Compile Include="API\V2\IMessageBusClient.cs" />
+    <Compile Include="API\V3\MessageBusTemplateEmail.cs" />
+    <Compile Include="API\V3\Debug\IMessageBusDebugging.cs" />
+    <Compile Include="API\V3\IMessageBusClient.cs" />
     <Compile Include="API\ILogger.cs" />
     <Compile Include="API\MessageBus.cs" />
-    <Compile Include="API\V2\IMessageBusMessageStatus.cs" />
-    <Compile Include="API\V2\MessageBusTransmissionEvent.cs" />
-    <Compile Include="API\V2\MessageBusValidationFailedException.cs" />
-    <Compile Include="API\V2\MessageTransmissionHandler.cs" />
+    <Compile Include="API\V3\IMessageBusMessageStatus.cs" />
+    <Compile Include="API\V3\MessageBusTransmissionEvent.cs" />
+    <Compile Include="API\V3\MessageBusValidationFailedException.cs" />
+    <Compile Include="API\V3\MessageTransmissionHandler.cs" />
     <Compile Include="Impl\AutoBatchingClient.cs" />
-    <Compile Include="API\V2\MessageBusEmail.cs" />
+    <Compile Include="API\V3\MessageBusEmail.cs" />
     <Compile Include="Impl\ConsoleLogger.cs" />
     <Compile Include="Impl\NullLogger.cs" />
     <Compile Include="Impl\SimpleHttpClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SPI\BatchEmailMessage.cs" />
-    <Compile Include="SPI\BatchEmailRequest.cs" />
+    <Compile Include="SPI\BatchEmailSendRequest.cs" />
+    <Compile Include="SPI\BatchTemplateSendRequest.cs" />
+    <Compile Include="SPI\BatchTemplateMessage.cs" />
     <Compile Include="SPI\IMessageBusHttpClient.cs" />
     <Compile Include="SPI\BatchEmailResponse.cs" />
   </ItemGroup>

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using MessageBus.API;
-using MessageBus.API.V2;
-using MessageBus.API.V2.Debug;
+using MessageBus.API.V3;
+using MessageBus.API.V3.Debug;
 using MessageBus.SPI;
-using MessageBusTest.Impl;
 
 namespace MessageBus.Impl {
 
@@ -19,33 +18,30 @@ namespace MessageBus.Impl {
 
         public string ApiKey { get; private set; }
 
-        public string ApiVersion { get; private set; }
-
         private readonly ILogger Logger;
         private readonly IMessageBusHttpClient HttpClient;
 
-        private BatchEmailRequest CurrentRequest;
+        private BatchEmailSendRequest CurrentEmailSendRequest;
+        private BatchTemplateSendRequest CurrentTemplateSendRequest;
 
-        public AutoBatchingClient(string apiKey, string version)
-            : this(apiKey, version, new SimpleHttpClient(), new NullLogger()) {
+        public AutoBatchingClient(string apiKey)
+            : this(apiKey, new SimpleHttpClient(apiKey), new NullLogger()) {
         }
 
-        public AutoBatchingClient(string apiKey, string version, IMessageBusHttpClient httpClient)
-            : this(apiKey, version, httpClient, new NullLogger()) {
+        public AutoBatchingClient(string apiKey, IMessageBusHttpClient httpClient)
+            : this(apiKey, httpClient, new NullLogger()) {
         }
 
-        public AutoBatchingClient(string apiKey, string version, ILogger logger)
-            : this(apiKey, version, new SimpleHttpClient(logger), logger) {
+        public AutoBatchingClient(string apiKey, ILogger logger)
+            : this(apiKey, new SimpleHttpClient(apiKey, logger), logger) {
         }
 
-        public AutoBatchingClient(string apiKey, string version, IMessageBusHttpClient httpClient, ILogger logger) {
+        public AutoBatchingClient(string apiKey, IMessageBusHttpClient httpClient, ILogger logger) {
             ApiKey = apiKey;
-            ApiVersion = version;
             HttpClient = httpClient;
             Logger = logger;
             EmailBufferSize = 20;
-            CustomHeaders = new Dictionary<string, string>();
-            Logger.info(String.Format("AutoBatchingClient created for version {0} with http client class {1}", version, httpClient.GetType().Name));
+            Logger.info(String.Format("AutoBatchingClient created with http client class {0}", httpClient.GetType().Name));
         }
 
         public bool SkipValidation { private get; set; }
@@ -76,11 +72,17 @@ namespace MessageBus.Impl {
         public bool Flush() {
             var result = 0;
             lock (this) {
-                if (CurrentRequest != null) {
-                    var response = HttpClient.SendEmails(CurrentRequest);
+                if (CurrentEmailSendRequest != null) {
+                    var response = HttpClient.SendEmails(CurrentEmailSendRequest);
                     OnTranmission(response);
-                    result = CurrentRequest.messageCount;
-                    CurrentRequest = new BatchEmailRequest(this);
+                    result = CurrentEmailSendRequest.messages.Count;
+                    CurrentEmailSendRequest = new BatchEmailSendRequest();
+                }
+                if (CurrentTemplateSendRequest != null) {
+                    var response = HttpClient.SendEmails(CurrentTemplateSendRequest);
+                    OnTranmission(response);
+                    result = CurrentTemplateSendRequest.messages.Count;
+                    CurrentTemplateSendRequest = new BatchTemplateSendRequest();
                 }
             }
             Logger.info(String.Format("Flush Complete: {0} messages tranmitted.", result));
@@ -98,24 +100,45 @@ namespace MessageBus.Impl {
 
         public bool Send(MessageBusTemplateEmail email) {
             Validate(email);
-            return Send(new BatchEmailMessage(email));
+            return Send(new BatchTemplateMessage(email));
         }
 
         private bool Send(BatchEmailMessage email) {
 
             lock (this) {
                 var result = 0;
-                if (CurrentRequest == null) {
-                    CurrentRequest = new BatchEmailRequest(this);
+                if (CurrentEmailSendRequest == null) {
+                    CurrentEmailSendRequest = new BatchEmailSendRequest();
                 }
 
-                CurrentRequest.messages.Add(email);
+                CurrentEmailSendRequest.messages.Add(email);
 
-                if (CurrentRequest.messageCount >= EmailBufferSize) {
-                    var response = HttpClient.SendEmails(CurrentRequest);
+                if (CurrentEmailSendRequest.messages.Count >= EmailBufferSize) {
+                    var response = HttpClient.SendEmails(CurrentEmailSendRequest);
                     OnTranmission(response);
-                    result = CurrentRequest.messageCount;
-                    CurrentRequest = new BatchEmailRequest(this);
+                    result = CurrentEmailSendRequest.messages.Count;
+                    CurrentEmailSendRequest = new BatchEmailSendRequest();
+                }
+                Logger.info(String.Format("Send Complete: {0} messages buffered and {1} messages tranmitted.", 1, result));
+                return result > 0;
+            }
+        }
+
+        private bool Send(BatchTemplateMessage email) {
+
+            lock (this) {
+                var result = 0;
+                if (CurrentTemplateSendRequest == null) {
+                    CurrentTemplateSendRequest = new BatchTemplateSendRequest();
+                }
+
+                CurrentTemplateSendRequest.messages.Add(email);
+
+                if (CurrentTemplateSendRequest.messages.Count >= EmailBufferSize) {
+                    var response = HttpClient.SendEmails(CurrentTemplateSendRequest);
+                    OnTranmission(response);
+                    result = CurrentTemplateSendRequest.messages.Count;
+                    CurrentTemplateSendRequest = new BatchTemplateSendRequest();
                 }
                 Logger.info(String.Format("Send Complete: {0} messages buffered and {1} messages tranmitted.", 1, result));
                 return result > 0;
@@ -130,16 +153,6 @@ namespace MessageBus.Impl {
             }
         }
 
-        public string TemplateKey { get; set; }
-
-        public string FromEmail { get; set; }
-
-        public string FromName { get; set; }
-
-        public string[] Tags { get; set; }
-
-        public Dictionary<string, string> CustomHeaders { get; private set; }
-
         public void Dispose() {
             Flush();
         }
@@ -151,16 +164,12 @@ namespace MessageBus.Impl {
             if (String.IsNullOrEmpty(ApiKey)) {
                 msg = "ApiKey is required";
             }
-            if (String.IsNullOrEmpty(ApiVersion)) {
-                msg = "ApiVersion is required";
-            }
-
-            if (String.IsNullOrEmpty(TemplateKey)) {
+            if (String.IsNullOrEmpty(email.TemplateKey)) {
                 msg = "A TemplateKey must be supplied when sending templated email";
             }
 
-            if (!email.MergeFields.ContainsKey("%EMAIL%")) {
-                msg = "The %EMAIL% key is required";
+            if (String.IsNullOrEmpty(email.ToEmail)) {
+                msg = "A ToEmail must be supplied when sending templated email";
             }
 
             if (email.MergeFields.Count > 0) {
@@ -169,7 +178,7 @@ namespace MessageBus.Impl {
                 }
             }
 
-            if (CustomHeaders.ContainsKey("message-id")) {
+            if (email.CustomHeaders.ContainsKey("message-id")) {
                 msg = "The message-id header is reserved for internal use";
             }
 
@@ -178,17 +187,6 @@ namespace MessageBus.Impl {
                 throw new MessageBusValidationFailedException(msg);
             }
 
-            if (!String.IsNullOrEmpty(FromEmail)) {
-                Logger.warning("'FromEmail' is ignored when sending template email");
-            }
-
-            if (!String.IsNullOrEmpty(FromName)) {
-                Logger.warning("'FromName' is ignored when sending template email");
-            }
-
-            if (Tags != null && Tags.Length > 0) {
-                Logger.warning("Tags are ignored when sending template email");
-            }
         }
 
         private void Validate(MessageBusEmail email) {
@@ -198,11 +196,8 @@ namespace MessageBus.Impl {
             if (String.IsNullOrEmpty(ApiKey)) {
                 msg = "ApiKey is required";
             }
-            if (String.IsNullOrEmpty(ApiVersion)) {
-                msg = "ApiVersion is required";
-            }
 
-            if (String.IsNullOrEmpty(FromEmail)) {
+            if (String.IsNullOrEmpty(email.FromEmail)) {
                 msg = "From Email is required";
             }
 
@@ -218,17 +213,13 @@ namespace MessageBus.Impl {
                 msg = "Either HtmlBody or PlaintextBody is required";
             }
 
-            if (CustomHeaders.ContainsKey("message-id")) {
+            if (email.CustomHeaders.ContainsKey("message-id")) {
                 msg = "The message-id header is reserved for internal use";
             }
 
             if (msg.Length > 0) {
                 Logger.error(msg);
                 throw new MessageBusValidationFailedException(msg);
-            }
-
-            if (!String.IsNullOrEmpty(TemplateKey)) {
-                Logger.warning("'TemplateKey' is ignored unless sending template email");
             }
         }
     }

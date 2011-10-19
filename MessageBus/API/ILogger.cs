@@ -1,5 +1,3 @@
-using System;
-
 namespace MessageBus.API {
 
     public interface ILogger {

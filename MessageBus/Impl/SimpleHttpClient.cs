@@ -14,20 +14,22 @@ namespace MessageBus.Impl {
     public class SimpleHttpClient : IMessageBusHttpClient {
 
         private readonly ILogger Logger;
+        private readonly String ApiKey;
 
+        private const string USER_AGENT = "MessageBusAPI:3.0.0-CSHARP:3.5";
         private const string REQUEST_URL_FORMAT = "{0}/{1}/{2}";
         private const string SEND_EMAILS = "emails/send";
+        private const string SEND_TEMPLATE = "templates/send";
 
-        private const string SEND_EMAILS_POST_FORMAT = "json={0}";
-
-        public SimpleHttpClient() {
+        public SimpleHttpClient(String apiKey) {
             Domain = "https://api.messagebus.com";
-            Path = "api/v2";
+            Path = "api/v3";
             Serializer = new JavaScriptSerializer();
             Logger = new NullLogger();
+            ApiKey = apiKey;
         }
-        public SimpleHttpClient(ILogger logger)
-            : this() {
+        public SimpleHttpClient(String apiKey, ILogger logger)
+            : this(apiKey) {
             Logger = logger;
         }
 
@@ -46,15 +48,63 @@ namespace MessageBus.Impl {
         public IWebProxy Proxy { private get; set; }
         public ICredentials Credentials { private get; set; }
 
-        public BatchEmailResponse SendEmails(BatchEmailRequest batchEmailRequest) {
+        public BatchEmailResponse SendEmails(BatchEmailSendRequest batchEmailSendRequest) {
             var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, SEND_EMAILS);
 
             var request = CreateRequest(uriString);
 
-            string postData = String.Format(SEND_EMAILS_POST_FORMAT, HttpUtility.UrlEncode(Serializer.Serialize(batchEmailRequest)));
+            string postData = Serializer.Serialize(batchEmailSendRequest);
             byte[] postDataArray = Encoding.UTF8.GetBytes(postData);
 
-            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentType = "application/json";
+            request.ContentLength = postDataArray.Length;
+
+            request.Method = "POST";
+            using (var requestStream = request.GetRequestStream()) {
+                requestStream.Write(postDataArray, 0, postDataArray.Length);
+            }
+
+            try {
+                using (var response = WrapResponse(request.GetResponse())) {
+                    using (var responseStream = response.GetResponseStream()) {
+                        using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
+                            string responseString = reader.ReadToEnd();
+                            var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
+                            return result;
+                        }
+                    }
+                }
+            } catch (WebException e) {
+                if (e.Response != null) {
+                    string message;
+                    using (var responseStream = e.Response.GetResponseStream()) {
+                        using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
+                            string responseString = reader.ReadToEnd();
+                            try {
+                                var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
+                                message = result.statusMessage;
+                            } catch (ArgumentException x) {
+                                message = responseString;
+                            }
+                        }
+                    }
+                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage={1}. Message={2}", e.Status, message, e.Message));
+                } else {
+                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage=<Unknown>. Message={1}", e.Status, e.Message));
+                }
+                throw;
+            }
+        }
+
+        public BatchEmailResponse SendEmails(BatchTemplateSendRequest batchTemplateSendRequest) {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, SEND_TEMPLATE);
+
+            var request = CreateRequest(uriString);
+
+            string postData = Serializer.Serialize(batchTemplateSendRequest);
+            byte[] postDataArray = Encoding.UTF8.GetBytes(postData);
+
+            request.ContentType = "application/json";
             request.ContentLength = postDataArray.Length;
 
             request.Method = "POST";
@@ -99,6 +149,8 @@ namespace MessageBus.Impl {
             if (httpWebRequest != null) {
                 httpWebRequest.KeepAlive = true;
                 httpWebRequest.AllowAutoRedirect = true;
+                httpWebRequest.Headers.Add("X-Messagebus-Key", ApiKey);
+                httpWebRequest.UserAgent = USER_AGENT;
                 if (Proxy != null) {
                     httpWebRequest.Proxy = Proxy;
                 }

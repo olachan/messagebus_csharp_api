@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace MessageBus.API.V2 {
+namespace MessageBus.API.V3 {
     /// <summary>
     /// Defines the methods required for sending email via the MessageBus ReST API.
     /// </summary>
@@ -12,37 +12,6 @@ namespace MessageBus.API.V2 {
         /// The API key for your account
         /// </summary>
         string ApiKey { get; }
-
-        /// <summary>
-        /// Read-only.  The API version.
-        /// </summary>
-        string ApiVersion { get; }
-
-        /// <summary>
-        /// Optional.  The template key to use for the merge.
-        /// Note:  If this is specified that plaintextBody and htmlBody are not used.
-        /// </summary>
-        string TemplateKey { get; set; }
-
-        /// <summary>
-        /// The from email address. e.g. bobsmith@example.com
-        /// </summary>
-        string FromEmail { get; set; }
-
-        /// <summary>
-        /// The from name. e.g. Bob Smith
-        /// </summary>
-        string FromName { get; set; }
-
-        /// <summary>
-        /// The tags to associate with this email for statistical analysis.
-        /// </summary>
-        string[] Tags { get; set; }
-
-        /// <summary>
-        /// Custom headers to include with the email.  To add a customer header call CustomHeaders.Add("{headerName}", "{headerValue}")
-        /// </summary>
-        Dictionary<string, string> CustomHeaders { get; }
 
         /// <summary>
         /// The the proxy to use for Http connections.

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MessageBus.API.V2 {
+namespace MessageBus.API.V3 {
     public interface IMessageBusTransmissionEvent {
         int Count { get; }
         int SuccessCount { get; }

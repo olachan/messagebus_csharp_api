@@ -13,6 +13,7 @@ namespace MessageBus.SPI {
         IWebProxy Proxy { set; }
         ICredentials Credentials { set; }
         bool SslVerifyPeer { set; }
-        BatchEmailResponse SendEmails(BatchEmailRequest batchEmailRequest);
+        BatchEmailResponse SendEmails(BatchEmailSendRequest batchEmailSendRequest);
+        BatchEmailResponse SendEmails(BatchTemplateSendRequest batchTemplateSendRequest);
     }
 }

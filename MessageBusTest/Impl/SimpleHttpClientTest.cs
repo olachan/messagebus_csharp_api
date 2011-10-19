@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -32,7 +33,7 @@ namespace MessageBusTest.Impl {
         [TestInitialize()]
         public void TestInitialize() {
             Logger = MockRepository.GenerateMock<ILogger>();
-            Client = MockRepository.GeneratePartialMock<SimpleHttpClient>(Logger);
+            Client = MockRepository.GeneratePartialMock<SimpleHttpClient>("AnAPIKey", Logger);
             Request = MockRepository.GenerateMock<WebRequestWrapper>();
             Response = MockRepository.GenerateMock<WebResponseWrapper>();
 
@@ -42,7 +43,7 @@ namespace MessageBusTest.Impl {
 
         private void SetupDefaultExpectations() {
             Request.Expect(x => x.Method).SetPropertyWithArgument("POST");
-            Request.Expect(x => x.ContentType).SetPropertyWithArgument("application/x-www-form-urlencoded");
+            Request.Expect(x => x.ContentType).SetPropertyWithArgument("application/json");
             Request.Expect(x => x.GetRequestStream()).Return(ReqStream);
             Request.Expect(x => x.GetResponse()).Return(null);
 
@@ -79,19 +80,20 @@ namespace MessageBusTest.Impl {
         public void MakesAValidApiRequest() {
             SetupDefaultExpectations();
 
-            var testRequest = new BatchEmailRequest {
-                apiKey = "ABCD-1234-ABCD-1234",
-                apiVersion = "2.2",
-                fromEmail = "test@example.com",
-                fromName = "Test Sender",
-                tags = new[] { "test", "test2" },
+            var testRequest = new BatchEmailSendRequest {            
             };
 
             testRequest.messages.Add(new BatchEmailMessage {
+                fromEmail = "test@example.com",
+                fromName = "Test Sender",
+                tags = new[] { "test", "test2" },
                 toEmail = "bob@example.com",
+                subject = "Test Subject",
                 plaintextBody = "Plain Text",
-                htmlBody = "<html><body>HTML</body></html>",
+                htmlBody = "<html><body>HTML</body></html>"
             });
+
+            testRequest.messages[0].customHeaders.Add("Test", "Header");
 
             var testResponse = new BatchEmailResponse {
                 statusMessage = "OK",
@@ -105,8 +107,8 @@ namespace MessageBusTest.Impl {
             ResponseString = new JavaScriptSerializer().Serialize(testResponse);
 
             var response = Client.SendEmails(testRequest);
-            Assert.AreEqual("https://api.messagebus.com/api/v2/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
-            var expectedJson = @"json={""apiKey"":""ABCD-1234-ABCD-1234"",""apiVersion"":""2.2"",""templateKey"":null,""fromEmail"":""test@example.com"",""fromName"":""Test Sender"",""tags"":[""test"",""test2""],""customHeaders"":{},""messageCount"":1,""messages"":[{""toEmail"":""bob@example.com"",""subject"":null,""plaintextBody"":""Plain Text"",""htmlBody"":""\u003chtml\u003e\u003cbody\u003eHTML\u003c/body\u003e\u003c/html\u003e"",""mergeFields"":null}]}";
+            Assert.AreEqual("https://api.messagebus.com/api/v3/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
+            var expectedJson = @"{""messages"":[{""toEmail"":""bob@example.com"",""fromEmail"":""test@example.com"",""toName"":null,""fromName"":""Test Sender"",""subject"":""Test Subject"",""plaintextBody"":""Plain Text"",""htmlBody"":""\u003chtml\u003e\u003cbody\u003eHTML\u003c/body\u003e\u003c/html\u003e"",""customHeaders"":{""Test"":""Header""},""tags"":[""test"",""test2""]}]}";
             Assert.AreEqual(expectedJson, HttpUtility.UrlDecode(RequestString));
             Assert.AreEqual(testResponse.statusMessage, response.statusMessage);
             Assert.AreEqual(testResponse.successCount, response.successCount);
@@ -118,8 +120,8 @@ namespace MessageBusTest.Impl {
             SetupDefaultExpectations();
 
             Client.Domain = "https://test.somewhere.org";
-            Client.SendEmails(new BatchEmailRequest());
-            Assert.AreEqual("https://test.somewhere.org/api/v2/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
+            Client.SendEmails(new BatchEmailSendRequest());
+            Assert.AreEqual("https://test.somewhere.org/api/v3/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
         }
 
         [TestMethod]
@@ -127,14 +129,14 @@ namespace MessageBusTest.Impl {
             SetupDefaultExpectations();
 
             Client.Path = "test/path";
-            Client.SendEmails(new BatchEmailRequest());
+            Client.SendEmails(new BatchEmailSendRequest());
             Assert.AreEqual("https://api.messagebus.com/test/path/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
         }
 
         [TestMethod]
         public void LogsWebErrors() {
             Request.Expect(x => x.Method).SetPropertyWithArgument("POST");
-            Request.Expect(x => x.ContentType).SetPropertyWithArgument("application/x-www-form-urlencoded");
+            Request.Expect(x => x.ContentType).SetPropertyWithArgument("application/json");
             Request.Expect(x => x.GetRequestStream()).Return(ReqStream);
             Request.Expect(x => x.GetResponse()).Throw(new WebException("Some Message"));
 
@@ -142,7 +144,7 @@ namespace MessageBusTest.Impl {
             Logger.Expect(x => x.error("Request Failed with Status: UnknownError. StatusMessage=<Unknown>. Message=Some Message"));
 
             try {
-                Client.SendEmails(new BatchEmailRequest());
+                Client.SendEmails(new BatchEmailSendRequest());
             } catch (WebException e) {
                 return;
             }

@@ -1,4 +1,4 @@
-﻿namespace MessageBus.API.V2 {
+﻿namespace MessageBus.API.V3 {
     public interface IMessageBusMessageStatus {
         bool Succeeded { get; }
         string StatusCode { get; }
