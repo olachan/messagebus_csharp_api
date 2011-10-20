@@ -24,8 +24,12 @@ namespace MessageBus.Impl {
         private const string DELIVERY_ERRORS = "delivery_errors";
         private const string UNSUBSCRIBES = "unsubscribes";
         private const string MAILING_LISTS = "mailing_lists";
-        private const string MAILING_LIST_ENTRIES_FORMAT = "mailing_lists/{0}/entries";
-        private const string MAILING_LIST_ENTRY_FORMAT = "mailing_lists/{0}/entry/{1}";
+        private const string MAILING_LIST_ENTRIES_FORMAT = "mailing_list/{0}/entries";
+        private const string MAILING_LIST_ENTRY_FORMAT = "mailing_list/{0}/entry/{1}";
+
+        public enum HttpMethod {
+            GET, POST, DELETE, PUT
+        }
 
         public SimpleHttpClient(String apiKey) {
             Domain = "https://api.messagebus.com";
@@ -57,15 +61,14 @@ namespace MessageBus.Impl {
         public BatchEmailResponse SendEmails(BatchEmailSendRequest batchEmailSendRequest) {
             var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, SEND_EMAILS);
 
-            var request = CreateRequest(uriString);
+            var request = CreateRequest(uriString, HttpMethod.POST);
 
             string postData = Serializer.Serialize(batchEmailSendRequest);
             byte[] postDataArray = Encoding.UTF8.GetBytes(postData);
 
-            request.ContentType = "application/json";
+
             request.ContentLength = postDataArray.Length;
 
-            request.Method = "POST";
             using (var requestStream = request.GetRequestStream()) {
                 requestStream.Write(postDataArray, 0, postDataArray.Length);
             }
@@ -80,15 +83,13 @@ namespace MessageBus.Impl {
         public BatchEmailResponse SendEmails(BatchTemplateSendRequest batchTemplateSendRequest) {
             var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, SEND_TEMPLATE);
 
-            var request = CreateRequest(uriString);
+            var request = CreateRequest(uriString, HttpMethod.POST);
 
             string postData = Serializer.Serialize(batchTemplateSendRequest);
             byte[] postDataArray = Encoding.UTF8.GetBytes(postData);
 
-            request.ContentType = "application/json";
             request.ContentLength = postDataArray.Length;
 
-            request.Method = "POST";
             using (var requestStream = request.GetRequestStream()) {
                 requestStream.Write(postDataArray, 0, postDataArray.Length);
             }
@@ -118,9 +119,7 @@ namespace MessageBus.Impl {
                 uriString = uriString.TrimEnd('&');
             }
 
-            var request = CreateRequest(uriString);
-
-            request.Method = "GET";
+            var request = CreateRequest(uriString, HttpMethod.GET);
 
             try {
                 return HandleResponse<StatsResponse>(request);
@@ -143,9 +142,7 @@ namespace MessageBus.Impl {
                 uriString = uriString.TrimEnd('&');
             }
 
-            var request = CreateRequest(uriString);
-
-            request.Method = "GET";
+            var request = CreateRequest(uriString, HttpMethod.GET);
 
             try {
                 return HandleResponse<DeliveryErrorsResponse>(request);
@@ -168,9 +165,7 @@ namespace MessageBus.Impl {
                 uriString = uriString.TrimEnd('&');
             }
 
-            var request = CreateRequest(uriString);
-
-            request.Method = "GET";
+            var request = CreateRequest(uriString, HttpMethod.GET);
 
             try {
                 return HandleResponse<UnsubscribesResponse>(request);
@@ -180,19 +175,69 @@ namespace MessageBus.Impl {
         }
 
         public MailingListCreateResponse CreateMailingList(MailingListCreateRequest mailingListCreateRequest) {
-            throw new NotImplementedException();
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, MAILING_LISTS);
+
+            var request = CreateRequest(uriString, HttpMethod.POST);
+
+            string postData = Serializer.Serialize(mailingListCreateRequest);
+            byte[] postDataArray = Encoding.UTF8.GetBytes(postData);
+
+            request.ContentLength = postDataArray.Length;
+
+            using (var requestStream = request.GetRequestStream()) {
+                requestStream.Write(postDataArray, 0, postDataArray.Length);
+            }
+
+            try {
+                return HandleResponse<MailingListCreateResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
         }
 
         public MailingListsResponse ListMailingLists() {
-            throw new NotImplementedException();
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, MAILING_LISTS);
+
+            var request = CreateRequest(uriString, HttpMethod.GET);
+
+            try {
+                return HandleResponse<MailingListsResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
         }
 
-        public MailingListEntryCreateRequest CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest) {
-            throw new NotImplementedException();
+        public MailingListEntryCreateResponse CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest) {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, String.Format(MAILING_LIST_ENTRIES_FORMAT, mailingListKey));
+
+            var request = CreateRequest(uriString, HttpMethod.POST);
+
+            string postData = Serializer.Serialize(mailingListEntryCreateRequest);
+            byte[] postDataArray = Encoding.UTF8.GetBytes(postData);
+
+            request.ContentLength = postDataArray.Length;
+
+            using (var requestStream = request.GetRequestStream()) {
+                requestStream.Write(postDataArray, 0, postDataArray.Length);
+            }
+
+            try {
+                return HandleResponse<MailingListEntryCreateResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
         }
 
         public MailingListEntryDeleteResponse DeleteMailingListEntry(string mailingListKey, string emailAddress) {
-            throw new NotImplementedException();
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, String.Format(MAILING_LIST_ENTRY_FORMAT, mailingListKey, emailAddress));
+
+            var request = CreateRequest(uriString, HttpMethod.DELETE);
+
+            try {
+                return HandleResponse<MailingListEntryDeleteResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
         }
 
         private T HandleResponse<T>(WebRequestWrapper request) {
@@ -208,7 +253,7 @@ namespace MessageBus.Impl {
         }
 
         private WebException HandleException(WebException e) {
-            if (e.Response != null) {
+            if (e.Response != null && e.Response.ContentLength > 0) {
                 string message;
                 using (var responseStream = e.Response.GetResponseStream()) {
                     using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
@@ -228,11 +273,15 @@ namespace MessageBus.Impl {
             return e;
         }
 
-        protected internal virtual WebRequestWrapper CreateRequest(String uriString) {
+        protected internal virtual WebRequestWrapper CreateRequest(String uriString, HttpMethod method) {
             var httpWebRequest = WebRequest.Create(new Uri(uriString)) as HttpWebRequest;
             if (httpWebRequest != null) {
+                httpWebRequest.Method = method.ToString();
                 httpWebRequest.KeepAlive = true;
                 httpWebRequest.AllowAutoRedirect = true;
+                if (method == HttpMethod.POST) {
+                    httpWebRequest.ContentType = "application/json; charset=utf-8";
+                }
                 httpWebRequest.Headers.Add("X-Messagebus-Key", ApiKey);
                 httpWebRequest.UserAgent = USER_AGENT;
                 if (Proxy != null) {

@@ -23,5 +23,13 @@ namespace MessageBus.API {
             return new DefaultStatsClient(apiKey, logger);
         }
 
+        public static IMessageBusMailingListClient CreateMailingListClient(string apiKey) {
+            return new DefaultMailingListClient(apiKey);
+        }
+
+        public static IMessageBusMailingListClient CreateMailingListClient(string apiKey, ILogger logger) {
+            return new DefaultMailingListClient(apiKey, logger);
+        }
+
     }
 }

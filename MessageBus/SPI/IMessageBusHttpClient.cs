@@ -20,7 +20,7 @@ namespace MessageBus.SPI {
         UnsubscribesResponse RetrieveUnsubscribes(DateTime? startDate, DateTime? endDate);
         MailingListCreateResponse CreateMailingList(MailingListCreateRequest mailingListCreateRequest);
         MailingListsResponse ListMailingLists();
-        MailingListEntryCreateRequest CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest);
+        MailingListEntryCreateResponse CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest);
         MailingListEntryDeleteResponse DeleteMailingListEntry(string mailingListKey, string emailAddress);
     }
 }

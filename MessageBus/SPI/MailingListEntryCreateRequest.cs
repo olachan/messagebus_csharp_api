@@ -1,14 +1,16 @@
+using System;
 using System.Collections.Generic;
+using MessageBus.API.V3;
 
 namespace MessageBus.SPI
 {
     public class MailingListEntryCreateRequest
     {
-        public MailingListEntryCreateRequest()
+        public MailingListEntryCreateRequest(MessageBusMailingListEntry entry)
         {
-            mergeFields = new List<Dictionary<string, string>>();
+            mergeFields = entry.MergeFields;
         }
 
-        public List<Dictionary<string,string>> mergeFields { get; private set; }
+        public Dictionary<string,string> mergeFields { get; private set; }
     }
 }

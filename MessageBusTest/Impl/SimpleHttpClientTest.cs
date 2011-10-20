@@ -42,15 +42,13 @@ namespace MessageBusTest.Impl {
         }
 
         private void SetupDefaultExpectations() {
-            Request.Expect(x => x.Method).SetPropertyWithArgument("POST");
-            Request.Expect(x => x.ContentType).SetPropertyWithArgument("application/json");
             Request.Expect(x => x.GetRequestStream()).Return(ReqStream);
             Request.Expect(x => x.GetResponse()).Return(null);
 
             Response.Expect(x => x.GetResponseStream()).Return(RespStream);
             Response.Expect(x => x.Dispose());
 
-            Client.Expect(x => x.CreateRequest(Arg<string>.Is.Anything)).Return(Request);
+            Client.Expect(x => x.CreateRequest(Arg<string>.Is.Anything, Arg<SimpleHttpClient.HttpMethod>.Is.Anything)).Return(Request);
             Client.Expect(x => x.WrapResponse(Arg<WebResponse>.Is.Anything)).Return(Response);
         }
 
@@ -107,7 +105,7 @@ namespace MessageBusTest.Impl {
             ResponseString = new JavaScriptSerializer().Serialize(testResponse);
 
             var response = Client.SendEmails(testRequest);
-            Assert.AreEqual("https://api.messagebus.com/api/v3/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
+            Assert.AreEqual("https://api.messagebus.com/api/v3/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything, Arg<SimpleHttpClient.HttpMethod>.Is.Anything))[0][0]);
             var expectedJson = @"{""messages"":[{""toEmail"":""bob@example.com"",""fromEmail"":""test@example.com"",""toName"":null,""fromName"":""Test Sender"",""subject"":""Test Subject"",""plaintextBody"":""Plain Text"",""htmlBody"":""\u003chtml\u003e\u003cbody\u003eHTML\u003c/body\u003e\u003c/html\u003e"",""customHeaders"":{""Test"":""Header""},""tags"":[""test"",""test2""]}]}";
             Assert.AreEqual(expectedJson, HttpUtility.UrlDecode(RequestString));
             Assert.AreEqual(testResponse.statusMessage, response.statusMessage);
@@ -121,7 +119,7 @@ namespace MessageBusTest.Impl {
 
             Client.Domain = "https://test.somewhere.org";
             Client.SendEmails(new BatchEmailSendRequest());
-            Assert.AreEqual("https://test.somewhere.org/api/v3/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
+            Assert.AreEqual("https://test.somewhere.org/api/v3/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything, Arg<SimpleHttpClient.HttpMethod>.Is.Anything))[0][0]);
         }
 
         [TestMethod]
@@ -130,17 +128,15 @@ namespace MessageBusTest.Impl {
 
             Client.Path = "test/path";
             Client.SendEmails(new BatchEmailSendRequest());
-            Assert.AreEqual("https://api.messagebus.com/test/path/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything))[0][0]);
+            Assert.AreEqual("https://api.messagebus.com/test/path/emails/send", Client.GetArgumentsForCallsMadeOn(x => x.CreateRequest(Arg<String>.Is.Anything, Arg<SimpleHttpClient.HttpMethod>.Is.Anything))[0][0]);
         }
 
         [TestMethod]
         public void LogsWebErrors() {
-            Request.Expect(x => x.Method).SetPropertyWithArgument("POST");
-            Request.Expect(x => x.ContentType).SetPropertyWithArgument("application/json");
             Request.Expect(x => x.GetRequestStream()).Return(ReqStream);
             Request.Expect(x => x.GetResponse()).Throw(new WebException("Some Message"));
 
-            Client.Expect(x => x.CreateRequest(Arg<string>.Is.Anything)).Return(Request);
+            Client.Expect(x => x.CreateRequest(Arg<string>.Is.Anything, Arg<SimpleHttpClient.HttpMethod>.Is.Equal(SimpleHttpClient.HttpMethod.POST))).Return(Request);
             Logger.Expect(x => x.error("Request Failed with Status: UnknownError. StatusMessage=<Unknown>. Message=Some Message"));
 
             try {
