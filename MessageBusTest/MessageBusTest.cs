@@ -18,20 +18,20 @@ namespace MessageBusTest {
 
         [TestMethod]
         public void CanCreateANewMessageBusClientWithAnApiKey() {
-            var mb = MessageBus.API.MessageBus.CreateClient("ABCD-1234-1234-ABCD");
+            var mb = MessageBus.API.MessageBus.CreateEmailClient("ABCD-1234-1234-ABCD");
             Assert.IsNotNull(mb);
             Assert.AreEqual("ABCD-1234-1234-ABCD", mb.ApiKey);
         }
 
         [TestMethod]
         public void CanCreateANewMessageBusClientWithACustomLogger() {
-            var mb = MessageBus.API.MessageBus.CreateClient("ABCD-1234-1234-ABCD", new ConsoleLogger());
+            var mb = MessageBus.API.MessageBus.CreateEmailClient("ABCD-1234-1234-ABCD", new ConsoleLogger());
             Assert.IsNotNull(mb);
         }
 
         [TestMethod]
         public void SendsABlackHoleMessageToDemo() {
-            var mb = MessageBus.API.MessageBus.CreateClient("746296C8062E4CF82F69621850282BBF", new ConsoleLogger());
+            var mb = MessageBus.API.MessageBus.CreateEmailClient("746296C8062E4CF82F69621850282BBF", new ConsoleLogger());
             SetDebugOptions(mb);
             using (mb) {
                 var email = new MessageBusEmail
@@ -52,7 +52,7 @@ namespace MessageBusTest {
 
         [TestMethod]
         public void SendsABlackHoleMessageToDemoUsingATemplate() {
-            var mb = MessageBus.API.MessageBus.CreateClient("746296C8062E4CF82F69621850282BBF", new ConsoleLogger());
+            var mb = MessageBus.API.MessageBus.CreateEmailClient("746296C8062E4CF82F69621850282BBF", new ConsoleLogger());
             SetDebugOptions(mb);
             using (mb) {
                 var email = new MessageBusTemplateEmail
@@ -67,11 +67,39 @@ namespace MessageBusTest {
             }
         }
 
-        private void SetDebugOptions(IMessageBusClient client) {
-            var debug = client as IMessageBusDebugging;
+        [TestMethod]
+        public void RetrievesStatsFromDemo() {
+            var mb = MessageBus.API.MessageBus.CreateStatsClient("746296C8062E4CF82F69621850282BBF", new ConsoleLogger());
+            SetDebugOptions(mb);
+            var results = mb.RetrieveStats(null, null, null);
+            Assert.IsNotNull(results);
+        }
+
+        [TestMethod]
+        public void RetrievesDeliveryErrorsFromDemo() {
+            var mb = MessageBus.API.MessageBus.CreateStatsClient("746296C8062E4CF82F69621850282BBF", new ConsoleLogger());
+            SetDebugOptions(mb);
+            var results = mb.RetrieveDeliveryErrors(null, null);
+            Assert.IsNotNull(results);
+        }
+
+        [TestMethod]
+        public void RetrievesUnsubscribesFromDemo() {
+            var mb = MessageBus.API.MessageBus.CreateStatsClient("746296C8062E4CF82F69621850282BBF", new ConsoleLogger());
+            SetDebugOptions(mb);
+            var results = mb.RetrieveUnsubscribes(null, null);
+            Assert.IsNotNull(results);
+        }
+
+        private void SetDebugOptions(IMessageBusDebugging debug) {
             debug.Domain = "https://api.demo.messagebus.com";
             debug.SslVerifyPeer = false;
-            debug.Credentials = new NetworkCredential("<user>", "<password>");
+        }
+        private void SetDebugOptions(IMessageBusStatsClient emailClient) {
+            SetDebugOptions(emailClient as IMessageBusDebugging);
+        }
+        private void SetDebugOptions(IMessageBusEmailClient emailClient) {
+            SetDebugOptions(emailClient as IMessageBusDebugging);
         }
     }
 }

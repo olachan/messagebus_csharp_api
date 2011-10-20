@@ -10,9 +10,9 @@ using MessageBus.SPI;
 namespace MessageBus.Impl {
 
     /// <summary>
-    /// An implementation of IMessageBusClient that automatically buffers and transmits email to the server in batches. 
+    /// An implementation of IMessageBusEmailClient that automatically buffers and transmits email to the server in batches. 
     /// </summary>
-    public class AutoBatchingClient : IMessageBusClient, IMessageBusDebugging {
+    public class AutoBatchingEmailClient : IMessageBusEmailClient, IMessageBusDebugging {
 
         public event MessageTransmissionHandler Transmitted;
 
@@ -24,24 +24,24 @@ namespace MessageBus.Impl {
         private BatchEmailSendRequest CurrentEmailSendRequest;
         private BatchTemplateSendRequest CurrentTemplateSendRequest;
 
-        public AutoBatchingClient(string apiKey)
+        public AutoBatchingEmailClient(string apiKey)
             : this(apiKey, new SimpleHttpClient(apiKey), new NullLogger()) {
         }
 
-        public AutoBatchingClient(string apiKey, IMessageBusHttpClient httpClient)
+        public AutoBatchingEmailClient(string apiKey, IMessageBusHttpClient httpClient)
             : this(apiKey, httpClient, new NullLogger()) {
         }
 
-        public AutoBatchingClient(string apiKey, ILogger logger)
+        public AutoBatchingEmailClient(string apiKey, ILogger logger)
             : this(apiKey, new SimpleHttpClient(apiKey, logger), logger) {
         }
 
-        public AutoBatchingClient(string apiKey, IMessageBusHttpClient httpClient, ILogger logger) {
+        public AutoBatchingEmailClient(string apiKey, IMessageBusHttpClient httpClient, ILogger logger) {
             ApiKey = apiKey;
             HttpClient = httpClient;
             Logger = logger;
             EmailBufferSize = 20;
-            Logger.info(String.Format("AutoBatchingClient created with http client class {0}", httpClient.GetType().Name));
+            Logger.info(String.Format("AutoBatchingEmailClient created with http EmailClient class {0}", httpClient.GetType().Name));
         }
 
         public bool SkipValidation { private get; set; }

@@ -10,7 +10,7 @@ namespace MessageBusTest.Impl {
 
     [TestClass]
     public class AutoBatchingClientTest {
-        private AutoBatchingClient Client;
+        private AutoBatchingEmailClient EmailClient;
         private IMessageBusHttpClient MockHttpClient;
         private ILogger MockLogger;
         private IMessageBusTransmissionEvent TestEvent;
@@ -21,20 +21,20 @@ namespace MessageBusTest.Impl {
         public void MyTestInitialize() {
             MockHttpClient = MockRepository.GenerateMock<IMessageBusHttpClient>();
             MockLogger = MockRepository.GenerateMock<ILogger>();
-            Client = new AutoBatchingClient("TEST_KEY", MockHttpClient, MockLogger);
+            EmailClient = new AutoBatchingEmailClient("TEST_KEY", MockHttpClient, MockLogger);
         }
 
 
         [TestMethod]
         public void CanRetrieveApiKey() {
-            Assert.AreEqual("TEST_KEY", Client.ApiKey);
+            Assert.AreEqual("TEST_KEY", EmailClient.ApiKey);
         }
 
         [TestMethod]
         public void EmailBufferSizeDefaultsTo20AndCanBeChanged() {
-            Assert.AreEqual(20, Client.EmailBufferSize);
-            Client.EmailBufferSize = 100;
-            Assert.AreEqual(100, Client.EmailBufferSize);
+            Assert.AreEqual(20, EmailClient.EmailBufferSize);
+            EmailClient.EmailBufferSize = 100;
+            Assert.AreEqual(100, EmailClient.EmailBufferSize);
         }
 
         [TestMethod]
@@ -52,12 +52,12 @@ namespace MessageBusTest.Impl {
                     }
                 }
             });
-            Client.EmailBufferSize = 1;
-            (Client as IMessageBusDebugging).SkipValidation = true;
+            EmailClient.EmailBufferSize = 1;
+            (EmailClient as IMessageBusDebugging).SkipValidation = true;
 
-            Client.Transmitted += Transmitted;
+            EmailClient.Transmitted += Transmitted;
 
-            var result = Client.Send(new MessageBusEmail {
+            var result = EmailClient.Send(new MessageBusEmail {
                 Subject = "Test",
                 ToEmail = "bob@example.com",
                 PlaintextBody = "Plain Text",
@@ -91,49 +91,49 @@ namespace MessageBusTest.Impl {
         public void CallingSendWithBufferSizeOfTwoDoesNotSend() {
             MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailSendRequest>.Is.Anything)).Repeat.Never();
 
-            Client.EmailBufferSize = 2;
-            (Client as IMessageBusDebugging).SkipValidation = true;
+            EmailClient.EmailBufferSize = 2;
+            (EmailClient as IMessageBusDebugging).SkipValidation = true;
 
-            Client.Send(new MessageBusEmail());
+            EmailClient.Send(new MessageBusEmail());
         }
 
         [TestMethod]
         public void CallingSendWithBufferSizeOfTwoDoesNotSendUntilFlush() {
             MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailSendRequest>.Is.Anything)).Repeat.Once();
 
-            Client.EmailBufferSize = 2;
-            (Client as IMessageBusDebugging).SkipValidation = true;
+            EmailClient.EmailBufferSize = 2;
+            (EmailClient as IMessageBusDebugging).SkipValidation = true;
 
-            Client.Send(new MessageBusEmail());
-            Assert.IsTrue(Client.Flush());
+            EmailClient.Send(new MessageBusEmail());
+            Assert.IsTrue(EmailClient.Flush());
         }
 
         [TestMethod]
         public void CallingSendWithBufferSizeOfTwoInAUsingBlockFlushesAtTheEnd() {
             MockHttpClient.Expect(x => x.SendEmails(Arg<BatchEmailSendRequest>.Is.Anything)).Repeat.Once();
 
-            Client.EmailBufferSize = 2;
-            (Client as IMessageBusDebugging).SkipValidation = true;
+            EmailClient.EmailBufferSize = 2;
+            (EmailClient as IMessageBusDebugging).SkipValidation = true;
 
-            using (Client) {
-                Client.Send(new MessageBusEmail());
+            using (EmailClient) {
+                EmailClient.Send(new MessageBusEmail());
             }
         }
 
         [TestMethod]
         public void CallingFlushWithNoQueueMessagesReturnsFalse() {
-            Assert.IsFalse(Client.Flush());
+            Assert.IsFalse(EmailClient.Flush());
         }
 
         [TestMethod]
         public void CanCastClientToAccessDebuggingOptions() {
-            (Client as IMessageBusDebugging).Domain = "test.example.com";
+            (EmailClient as IMessageBusDebugging).Domain = "test.example.com";
         }
 
         [TestMethod]
         public void ValidatesEachCallToSend() {
             try {
-                Client.Send(new MessageBusEmail());
+                EmailClient.Send(new MessageBusEmail());
             } catch (MessageBusValidationFailedException e) {
                 return;
             }
@@ -142,7 +142,7 @@ namespace MessageBusTest.Impl {
 
         [TestMethod]
         public void ValidationPassesIfAllRequiredFieldsAreSupplied() {
-            Client.Send(new MessageBusEmail {
+            EmailClient.Send(new MessageBusEmail {
                 FromEmail = "alice@example.com",
                 ToEmail = "bob@example.com",
                 Subject = "Test",
@@ -158,7 +158,7 @@ namespace MessageBusTest.Impl {
                 ToEmail = "alice@example.com"
             };
             email.MergeFields.Add("%EMAIL%", "bob@example.com");
-            Client.Send(email);
+            EmailClient.Send(email);
         }
 
         [TestMethod]
@@ -170,7 +170,7 @@ namespace MessageBusTest.Impl {
                     Subject = "Test",
                     FromEmail = "alice@example.com"
                 };
-                Client.Send(email);
+                EmailClient.Send(email);
             } catch (MessageBusValidationFailedException e) {
                 return;
             }
@@ -186,7 +186,7 @@ namespace MessageBusTest.Impl {
                     ToEmail = "alice@example.com"
                 };
                 email.MergeFields.Add("EMAIL", "bob@example.com");
-                Client.Send(email);
+                EmailClient.Send(email);
             } catch (MessageBusValidationFailedException e) {
                 return;
             }
@@ -203,7 +203,7 @@ namespace MessageBusTest.Impl {
                     PlaintextBody = "Test"
                 };
                 email.CustomHeaders.Add("message-id", "some message id");
-                Client.Send(email);
+                EmailClient.Send(email);
             } catch (MessageBusValidationFailedException e) {
                 return;
             }

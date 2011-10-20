@@ -7,12 +7,21 @@ namespace MessageBus.API {
     /// </summary>
     public sealed class MessageBus {
 
-        public static IMessageBusClient CreateClient(string apiKey) {
-            return new AutoBatchingClient(apiKey);
+        public static IMessageBusEmailClient CreateEmailClient(string apiKey) {
+            return new AutoBatchingEmailClient(apiKey);
         }
 
-        public static IMessageBusClient CreateClient(string apiKey, ILogger logger) {
-            return new AutoBatchingClient(apiKey, logger);
+        public static IMessageBusEmailClient CreateEmailClient(string apiKey, ILogger logger) {
+            return new AutoBatchingEmailClient(apiKey, logger);
         }
+
+        public static IMessageBusStatsClient CreateStatsClient(string apiKey) {
+            return new DefaultStatsClient(apiKey);
+        }
+
+        public static IMessageBusStatsClient CreateStatsClient(string apiKey, ILogger logger) {
+            return new DefaultStatsClient(apiKey, logger);
+        }
+
     }
 }

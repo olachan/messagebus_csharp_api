@@ -1,6 +1,6 @@
+using System;
 using System.Net;
 using System.Web.Script.Serialization;
-using MessageBus.API;
 
 namespace MessageBus.SPI {
     /// <summary>
@@ -15,5 +15,12 @@ namespace MessageBus.SPI {
         bool SslVerifyPeer { set; }
         BatchEmailResponse SendEmails(BatchEmailSendRequest batchEmailSendRequest);
         BatchEmailResponse SendEmails(BatchTemplateSendRequest batchTemplateSendRequest);
+        StatsResponse RetrieveStats(DateTime? startDate, DateTime? endDate, String tag);
+        DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate);
+        UnsubscribesResponse RetrieveUnsubscribes(DateTime? startDate, DateTime? endDate);
+        MailingListCreateResponse CreateMailingList(MailingListCreateRequest mailingListCreateRequest);
+        MailingListsResponse ListMailingLists();
+        MailingListEntryCreateRequest CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest);
+        MailingListEntryDeleteResponse DeleteMailingListEntry(string mailingListKey, string emailAddress);
     }
 }

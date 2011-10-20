@@ -6,7 +6,7 @@ namespace MessageBus.API.V3 {
     /// <summary>
     /// Defines the methods required for sending email via the MessageBus ReST API.
     /// </summary>
-    public interface IMessageBusClient : IDisposable {
+    public interface IMessageBusEmailClient : IDisposable {
 
         /// <summary>
         /// The API key for your account

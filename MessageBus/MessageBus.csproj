@@ -49,18 +49,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\V3\IMessageBusStatsClient.cs" />
+    <Compile Include="API\V3\MessageBusDeliveryErrorResult.cs" />
     <Compile Include="API\V3\MessageBusTemplateEmail.cs" />
     <Compile Include="API\V3\Debug\IMessageBusDebugging.cs" />
-    <Compile Include="API\V3\IMessageBusClient.cs" />
+    <Compile Include="API\V3\IMessageBusEmailClient.cs" />
     <Compile Include="API\ILogger.cs" />
     <Compile Include="API\MessageBus.cs" />
     <Compile Include="API\V3\IMessageBusMessageStatus.cs" />
     <Compile Include="API\V3\MessageBusTransmissionEvent.cs" />
     <Compile Include="API\V3\MessageBusValidationFailedException.cs" />
     <Compile Include="API\V3\MessageTransmissionHandler.cs" />
-    <Compile Include="Impl\AutoBatchingClient.cs" />
+    <Compile Include="API\V3\MessageBusStatsResult.cs" />
+    <Compile Include="API\V3\MessageBusUnsubscribeResult.cs" />
+    <Compile Include="Impl\AutoBatchingEmailClient.cs" />
     <Compile Include="API\V3\MessageBusEmail.cs" />
     <Compile Include="Impl\ConsoleLogger.cs" />
+    <Compile Include="Impl\DefaultStatsClient.cs" />
+    <Compile Include="API\V3\MessageBusException.cs" />
     <Compile Include="Impl\NullLogger.cs" />
     <Compile Include="Impl\SimpleHttpClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -68,8 +74,21 @@
     <Compile Include="SPI\BatchEmailSendRequest.cs" />
     <Compile Include="SPI\BatchTemplateSendRequest.cs" />
     <Compile Include="SPI\BatchTemplateMessage.cs" />
+    <Compile Include="SPI\DeliveryErrorsResponse.cs" />
+    <Compile Include="SPI\DeliveryErrorsResponseResult.cs" />
     <Compile Include="SPI\IMessageBusHttpClient.cs" />
     <Compile Include="SPI\BatchEmailResponse.cs" />
+    <Compile Include="SPI\MailingListCreateRequest.cs" />
+    <Compile Include="SPI\MailingListCreateResponse.cs" />
+    <Compile Include="SPI\MailingListEntryCreateRequest.cs" />
+    <Compile Include="SPI\MailingListEntryCreateResponse.cs" />
+    <Compile Include="SPI\MailingListEntryDeleteResponse.cs" />
+    <Compile Include="SPI\MailingListItem.cs" />
+    <Compile Include="SPI\MailingListsResponse.cs" />
+    <Compile Include="SPI\StatsResponse.cs" />
+    <Compile Include="SPI\StatsResponseResult.cs" />
+    <Compile Include="SPI\UnsubscribeResponseResult.cs" />
+    <Compile Include="SPI\UnsubscribesResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -20,6 +20,12 @@ namespace MessageBus.Impl {
         private const string REQUEST_URL_FORMAT = "{0}/{1}/{2}";
         private const string SEND_EMAILS = "emails/send";
         private const string SEND_TEMPLATE = "templates/send";
+        private const string STATS = "stats";
+        private const string DELIVERY_ERRORS = "delivery_errors";
+        private const string UNSUBSCRIBES = "unsubscribes";
+        private const string MAILING_LISTS = "mailing_lists";
+        private const string MAILING_LIST_ENTRIES_FORMAT = "mailing_lists/{0}/entries";
+        private const string MAILING_LIST_ENTRY_FORMAT = "mailing_lists/{0}/entry/{1}";
 
         public SimpleHttpClient(String apiKey) {
             Domain = "https://api.messagebus.com";
@@ -65,34 +71,9 @@ namespace MessageBus.Impl {
             }
 
             try {
-                using (var response = WrapResponse(request.GetResponse())) {
-                    using (var responseStream = response.GetResponseStream()) {
-                        using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
-                            string responseString = reader.ReadToEnd();
-                            var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
-                            return result;
-                        }
-                    }
-                }
+                return HandleResponse<BatchEmailResponse>(request);
             } catch (WebException e) {
-                if (e.Response != null) {
-                    string message;
-                    using (var responseStream = e.Response.GetResponseStream()) {
-                        using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
-                            string responseString = reader.ReadToEnd();
-                            try {
-                                var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
-                                message = result.statusMessage;
-                            } catch (ArgumentException x) {
-                                message = responseString;
-                            }
-                        }
-                    }
-                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage={1}. Message={2}", e.Status, message, e.Message));
-                } else {
-                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage=<Unknown>. Message={1}", e.Status, e.Message));
-                }
-                throw;
+                throw HandleException(e);
             }
         }
 
@@ -113,35 +94,138 @@ namespace MessageBus.Impl {
             }
 
             try {
-                using (var response = WrapResponse(request.GetResponse())) {
-                    using (var responseStream = response.GetResponseStream()) {
-                        using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
-                            string responseString = reader.ReadToEnd();
-                            var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
-                            return result;
-                        }
-                    }
-                }
+                return HandleResponse<BatchEmailResponse>(request);
             } catch (WebException e) {
-                if (e.Response != null) {
-                    string message;
-                    using (var responseStream = e.Response.GetResponseStream()) {
-                        using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
-                            string responseString = reader.ReadToEnd();
-                            try {
-                                var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
-                                message = result.statusMessage;
-                            } catch (ArgumentException x) {
-                                message = responseString;
-                            }
+                throw HandleException(e);
+            }
+        }
+
+        public StatsResponse RetrieveStats(DateTime? startDate, DateTime? endDate, string tag) {
+
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, STATS);
+
+            if (startDate.HasValue || endDate.HasValue || tag != null) {
+                uriString += "?";
+                if (startDate.HasValue) {
+                    uriString += "startDate=" + startDate.Value.ToString("yyyy-MM-dd") + "&";
+                }
+                if (endDate.HasValue) {
+                    uriString += "endDate=" + endDate.Value.ToString("yyyy-MM-dd") + "&";
+                }
+                if (tag != null) {
+                    uriString += "tag=" + tag + "&";
+                }
+                uriString = uriString.TrimEnd('&');
+            }
+
+            var request = CreateRequest(uriString);
+
+            request.Method = "GET";
+
+            try {
+                return HandleResponse<StatsResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
+        }
+
+        public DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate) {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, DELIVERY_ERRORS);
+
+            if (startDate.HasValue || endDate.HasValue) {
+                uriString += "?";
+                if (startDate.HasValue) {
+                    uriString += "startDate=" + startDate.Value.ToString("yyyy-MM-dd") + "&";
+                }
+                if (endDate.HasValue) {
+                    uriString += "endDate=" + endDate.Value.ToString("yyyy-MM-dd") + "&";
+                }
+                uriString = uriString.TrimEnd('&');
+            }
+
+            var request = CreateRequest(uriString);
+
+            request.Method = "GET";
+
+            try {
+                return HandleResponse<DeliveryErrorsResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
+        }
+
+        public UnsubscribesResponse RetrieveUnsubscribes(DateTime? startDate, DateTime? endDate) {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, UNSUBSCRIBES);
+
+            if (startDate.HasValue || endDate.HasValue) {
+                uriString += "?";
+                if (startDate.HasValue) {
+                    uriString += "startDate=" + startDate.Value.ToString("yyyy-MM-dd") + "&";
+                }
+                if (endDate.HasValue) {
+                    uriString += "endDate=" + endDate.Value.ToString("yyyy-MM-dd") + "&";
+                }
+                uriString = uriString.TrimEnd('&');
+            }
+
+            var request = CreateRequest(uriString);
+
+            request.Method = "GET";
+
+            try {
+                return HandleResponse<UnsubscribesResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
+        }
+
+        public MailingListCreateResponse CreateMailingList(MailingListCreateRequest mailingListCreateRequest) {
+            throw new NotImplementedException();
+        }
+
+        public MailingListsResponse ListMailingLists() {
+            throw new NotImplementedException();
+        }
+
+        public MailingListEntryCreateRequest CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest) {
+            throw new NotImplementedException();
+        }
+
+        public MailingListEntryDeleteResponse DeleteMailingListEntry(string mailingListKey, string emailAddress) {
+            throw new NotImplementedException();
+        }
+
+        private T HandleResponse<T>(WebRequestWrapper request) {
+            using (var response = WrapResponse(request.GetResponse())) {
+                using (var responseStream = response.GetResponseStream()) {
+                    using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
+                        string responseString = reader.ReadToEnd();
+                        var result = Serializer.Deserialize<T>(responseString);
+                        return result;
+                    }
+                }
+            }
+        }
+
+        private WebException HandleException(WebException e) {
+            if (e.Response != null) {
+                string message;
+                using (var responseStream = e.Response.GetResponseStream()) {
+                    using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
+                        string responseString = reader.ReadToEnd();
+                        try {
+                            var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
+                            message = result.statusMessage;
+                        } catch (ArgumentException x) {
+                            message = responseString;
                         }
                     }
-                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage={1}. Message={2}", e.Status, message, e.Message));
-                } else {
-                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage=<Unknown>. Message={1}", e.Status, e.Message));
                 }
-                throw;
+                Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage={1}. Message={2}", e.Status, message, e.Message));
+            } else {
+                Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage=<Unknown>. Message={1}", e.Status, e.Message));
             }
+            return e;
         }
 
         protected internal virtual WebRequestWrapper CreateRequest(String uriString) {
