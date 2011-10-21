@@ -6,6 +6,7 @@ using System.Text;
 using System.Web;
 using System.Web.Script.Serialization;
 using MessageBus.API;
+using MessageBus.API.V3;
 using MessageBus.Impl;
 using MessageBus.SPI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -141,7 +142,7 @@ namespace MessageBusTest.Impl {
 
             try {
                 Client.SendEmails(new BatchEmailSendRequest());
-            } catch (WebException e) {
+            } catch (MessageBusException e) {
                 return;
             }
             Assert.Fail("Exception Expected");

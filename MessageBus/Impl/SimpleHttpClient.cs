@@ -5,6 +5,7 @@ using System.Text;
 using System.Web;
 using System.Web.Script.Serialization;
 using MessageBus.API;
+using MessageBus.API.V3;
 using MessageBus.SPI;
 
 namespace MessageBus.Impl {
@@ -252,25 +253,35 @@ namespace MessageBus.Impl {
             }
         }
 
-        private WebException HandleException(WebException e) {
-            if (e.Response != null && e.Response.ContentLength > 0) {
-                string message;
-                using (var responseStream = e.Response.GetResponseStream()) {
-                    using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
-                        string responseString = reader.ReadToEnd();
-                        try {
-                            var result = Serializer.Deserialize<BatchEmailResponse>(responseString);
-                            message = result.statusMessage;
-                        } catch (ArgumentException x) {
-                            message = responseString;
+        private MessageBusException HandleException(WebException e) {
+            if (e.Response != null) {
+                var httpWebResponse = e.Response as HttpWebResponse;
+                if (httpWebResponse != null) {
+                    string message;
+                    using (var responseStream = httpWebResponse.GetResponseStream()) {
+                        if (responseStream.CanRead) {
+                            using (var reader = new StreamReader(responseStream, Encoding.UTF8)) {
+                                string responseString = reader.ReadToEnd();
+                                try {
+                                    var result = Serializer.Deserialize<ErrorResponse>(responseString);
+                                    message = result.statusMessage;
+                                } catch (ArgumentException x) {
+                                    message = responseString;
+                                }
+                            }
+                        } else {
+                            message = httpWebResponse.StatusDescription;
                         }
                     }
+                    Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage={1}. Message={2}",
+                                               httpWebResponse.StatusCode, httpWebResponse.StatusDescription, message));
+                    return new MessageBusException((int)httpWebResponse.StatusCode, message);
                 }
-                Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage={1}. Message={2}", e.Status, message, e.Message));
-            } else {
                 Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage=<Unknown>. Message={1}", e.Status, e.Message));
+                return new MessageBusException(e);
             }
-            return e;
+            Logger.error(String.Format("Request Failed with Status: {0}. StatusMessage=<Unknown>. Message={1}", e.Status, e.Message));
+            return new MessageBusException(e);
         }
 
         protected internal virtual WebRequestWrapper CreateRequest(String uriString, HttpMethod method) {

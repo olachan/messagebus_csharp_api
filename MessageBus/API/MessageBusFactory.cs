@@ -5,7 +5,7 @@ namespace MessageBus.API {
     /// <summary>
     /// MessageBus Factory class for simple, (non-inversion of control) clients
     /// </summary>
-    public sealed class MessageBus {
+    public sealed class MessageBusFactory {
 
         public static IMessageBusEmailClient CreateEmailClient(string apiKey) {
             return new AutoBatchingEmailClient(apiKey);

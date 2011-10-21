@@ -72,13 +72,13 @@ namespace MessageBus.Impl {
         public bool Flush() {
             var result = 0;
             lock (this) {
-                if (CurrentEmailSendRequest != null) {
+                if (CurrentEmailSendRequest != null && CurrentEmailSendRequest.messages.Count > 0) {
                     var response = HttpClient.SendEmails(CurrentEmailSendRequest);
                     OnTranmission(response);
                     result = CurrentEmailSendRequest.messages.Count;
                     CurrentEmailSendRequest = new BatchEmailSendRequest();
                 }
-                if (CurrentTemplateSendRequest != null) {
+                if (CurrentTemplateSendRequest != null && CurrentTemplateSendRequest.messages.Count > 0) {
                     var response = HttpClient.SendEmails(CurrentTemplateSendRequest);
                     OnTranmission(response);
                     result = CurrentTemplateSendRequest.messages.Count;

@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace MessageBusExample
 {
-    static class ExampleProgram
+    static class ExampleSendMailProgram
     {
         /// <summary>
         /// The main entry point for the application.

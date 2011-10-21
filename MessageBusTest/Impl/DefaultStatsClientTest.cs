@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using MessageBus.API;
 using MessageBus.Impl;
 using MessageBus.SPI;
@@ -53,9 +54,45 @@ namespace MessageBusTest.Impl {
             Assert.AreEqual("test@example.com", actual[0].ToEmail);
         }
 
-        /// <summary>
-        ///A test for RetrieveStats
-        ///</summary>
+        [TestMethod()]
+        public void RetrieveDeliveryErrorsTestThrowExceptionOnFailure() {
+            MockHttpClient.Expect(
+                x =>
+                x.RetrieveDeliveryErrors(
+                    Arg<DateTime>.Is.Anything,
+                    Arg<DateTime>.Is.Anything))
+                .Return(new DeliveryErrorsResponse {
+                    statusCode = 503,
+                    statusMessage = "Service Temporarily Unavailable"
+                });
+            try {
+                StatsClient.RetrieveDeliveryErrors(null, null);
+            } catch (MessageBusException e) {
+                Assert.AreEqual(503, e.StatusCode);
+                Assert.IsTrue(e.IsRetryable());
+                return;
+            }
+            Assert.Fail("MessageBusException not raised");
+        }
+
+        [TestMethod()]
+        public void RetrieveDeliveryErrorsTestThrowsWrappedExceptionOnWebException() {
+            MockHttpClient.Expect(
+                x =>
+                x.RetrieveDeliveryErrors(
+                    Arg<DateTime>.Is.Anything,
+                    Arg<DateTime>.Is.Anything))
+                .Throw(new MessageBusException(new WebException("Connection Rufused", WebExceptionStatus.ConnectFailure)));
+            try {
+                StatsClient.RetrieveDeliveryErrors(null, null);
+            } catch (MessageBusException e) {
+                Assert.AreEqual(-1, e.StatusCode);
+                Assert.IsFalse(e.IsRetryable());
+                return;
+            }
+            Assert.Fail("MessageBusException not raised");
+        }
+
         [TestMethod()]
         public void RetrieveStatsTest() {
             var result = new StatsResponseResult() {

@@ -58,7 +58,7 @@
     <Compile Include="API\V3\Debug\IMessageBusDebugging.cs" />
     <Compile Include="API\V3\IMessageBusEmailClient.cs" />
     <Compile Include="API\ILogger.cs" />
-    <Compile Include="API\MessageBus.cs" />
+    <Compile Include="API\MessageBusFactory.cs" />
     <Compile Include="API\V3\IMessageBusMessageStatus.cs" />
     <Compile Include="API\V3\MessageBusTransmissionEvent.cs" />
     <Compile Include="API\V3\MessageBusValidationFailedException.cs" />
@@ -78,6 +78,7 @@
     <Compile Include="SPI\BatchEmailSendRequest.cs" />
     <Compile Include="SPI\BatchTemplateSendRequest.cs" />
     <Compile Include="SPI\BatchTemplateMessage.cs" />
+    <Compile Include="SPI\ErrorResponse.cs" />
     <Compile Include="SPI\DeliveryErrorsResponse.cs" />
     <Compile Include="SPI\DeliveryErrorsResponseResult.cs" />
     <Compile Include="SPI\IMessageBusHttpClient.cs" />

@@ -332,7 +332,7 @@ namespace MessageBusExample
         {
 
             var mb = MessageBus.API.MessageBus.CreateEmailClient(tbApiKey.Text);
-            mb.Transmitted += new MessageTransmissionHandler(mb_Transmitted);
+            mb.Transmitted += mb_Transmitted;
 
             try
             {
@@ -348,7 +348,7 @@ namespace MessageBusExample
                     });
                 }
             }
-            catch (WebException we)
+            catch (MessageBusException we)
             {
                 tbFailedCount.Text = "1";
                 tbSuccessCount.Text = "0";
