@@ -40,12 +40,22 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Impl\DefaultMailingListClientTest.cs" />
+    <Compile Include="Impl\DefaultStatsClientTest.cs" />
     <Compile Include="Impl\AutoBatchingClientTest.cs" />
     <Compile Include="Impl\SimpleHttpClientTest.cs" />
     <Compile Include="MessageBusTest.cs" />

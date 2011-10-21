@@ -22,6 +22,11 @@ namespace MessageBus.Impl {
             Logger = logger;
         }
 
+        public DefaultMailingListClient(IMessageBusHttpClient httpClient, ILogger logger) {
+            HttpClient = httpClient;
+            Logger = logger;
+        }
+
         public MessageBusMailingList CreateMailingList(MessageBusMailingList mailingList) {
             var response = HttpClient.CreateMailingList(new MailingListCreateRequest(mailingList));
             if (response.statusCode != 201) {

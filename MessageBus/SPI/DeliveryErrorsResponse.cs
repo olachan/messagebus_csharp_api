@@ -10,6 +10,6 @@ namespace MessageBus.SPI {
         public int statusCode { get; set; }
         public string statusMessage { get; set; }
         public DateTime statusTime { get; set; }
-        public List<DeliveryErrorsResponseResult> results { get; private set; }
+        public List<DeliveryErrorsResponseResult> results { get; set; }
     }
 }

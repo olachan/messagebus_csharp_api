@@ -23,6 +23,11 @@ namespace MessageBus.Impl {
             Logger = logger;
         }
 
+        public DefaultStatsClient(IMessageBusHttpClient httpClient, ILogger logger) {
+            HttpClient = httpClient;
+            Logger = logger;
+        }
+
         public MessageBusStatsResult[] RetrieveStats(DateTime? startDate, DateTime? endDate, string tag) {
             var response = HttpClient.RetrieveStats(startDate, endDate, tag);
             if (response.statusCode != 200) {
@@ -31,8 +36,7 @@ namespace MessageBus.Impl {
             return response.results.Select(r => new MessageBusStatsResult(r)).ToArray();
         }
 
-        public MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate)
-        {
+        public MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate) {
             var response = HttpClient.RetrieveDeliveryErrors(startDate, endDate);
             if (response.statusCode != 200) {
                 throw new MessageBusException(response.statusCode, response.statusMessage);
@@ -40,8 +44,7 @@ namespace MessageBus.Impl {
             return response.results.Select(r => new MessageBusDeliveryErrorResult(r)).ToArray();
         }
 
-        public MessageBusUnsubscribeResult[] RetrieveUnsubscribes(DateTime? startDate, DateTime? endDate)
-        {
+        public MessageBusUnsubscribeResult[] RetrieveUnsubscribes(DateTime? startDate, DateTime? endDate) {
             var response = HttpClient.RetrieveUnsubscribes(startDate, endDate);
             if (response.statusCode != 200) {
                 throw new MessageBusException(response.statusCode, response.statusMessage);
