@@ -10,9 +10,17 @@ The dll can be downloaded from (https://github.com/downloads/messagebus/messageb
 
 == Sending Mail with MessageBus
 
-=== Creating an instance of the MessageBus email client:
+=== Creating an instance of the MessageBus Email client:
 
-  var client = MessageBus.API.MessageBus.CreateClient("<Your API Key Here>");
+  var client = MessageBusFactory.CreateEmailClient("<Your API Key Here>");
+
+=== Creating an instance of the MessageBus Stats client:
+
+  var client = MessageBusFactory.CreateStatsClient("<Your API Key Here>");
+
+=== Creating an instance of the MessageBus Mailing List client:
+
+  var client = MessageBusFactory.CreateMailingListClient("<Your API Key Here>");
 
 (For more options please see "Advanced Usage").
 
@@ -28,6 +36,7 @@ Adding mail to the buffer is done as follows:
 
   client.Send(new MessageBusEmail {
     ToEmail = "alice@example.com",
+    FromEMail = "bob@example.com",
     Subject = "Test from Messagebus",
     PlaintextBody = "Hello",
     HtmlBody = "<html><body><h1>Hello!</h1></body></htm>"
@@ -39,13 +48,13 @@ Typically sending occurs in a loop over a list of recipients.  Mail is transmitt
 
 Alternatively, the loop can be surrounded with a using {} block as follows:
 
-  var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
-  client.FromEmail = "test@example.com";
+  var client = MessageBusFactory.CreateEmailClient("ABCD1234DEFA5678BCDE9012FABC3456");
 
   try {
     using(client) {
       foreach(var item in MyMailingList) {
         client.Send(new MessageBusEmail {
+          FromEmail = "apitest@messagebus.com",
           ToEmail = item.EmailAddress,
           Subject = "Hello from MessageBus",
           PlaintextBody = "Hello and Welcome!",
@@ -53,7 +62,7 @@ Alternatively, the loop can be surrounded with a using {} block as follows:
         });
       }
     }
-  } catch (WebException e) {  // This exception occurs in the event of a server error.
+  } catch (MessageBusException e) {  // This exception occurs in the event of a server error.
     .
     .
     .
@@ -64,19 +73,19 @@ Alternatively, the loop can be surrounded with a using {} block as follows:
 
 Preformatted email is email in which the subject and body are composed before sending to MessageBus.  The following example will send a single pre-formatted email via MessageBus:
 
-  var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
-  client.FromEmail = "test@example.com";
+  var client = MessageBusFactory.CreateEmailClient("ABCD1234DEFA5678BCDE9012FABC3456");
 
   try {
     using(client) {
       client.Send(new MessageBusEmail {
+        FromEmail = "apitest@messagebus.com",
         ToEmail = "test@example.com",
         Subject = "Hello from MessageBus",
         PlaintextBody = "Hello and Welcome!",
         HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
       });
      }
-  } catch (WebException e) { // This exception occurs in the event of a server error.
+  } catch (MessageBusException e) { // This exception occurs in the event of a server error.
     .
     .
     .
@@ -87,24 +96,23 @@ Preformatted email is email in which the subject and body are composed before se
 
 An ApiTemplate can be defined on the MessageBus website.  In order to send mail using an ApiTemplate, copy the ApiTemplate key into your code, for example:
 
-  var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456");
-  client.TemplateKey = "24E26340A4E6012E8C2940406818E8C7";
+  var client = MessageBusFactory.CreateEmailClient("ABCD1234DEFA5678BCDE9012FABC3456");
 
   try {
     using(client) {
-      var email = new MessageBusTemplateEmail();
+      var email = new MessageBusTemplateEmail { TemplateKey = "<YOUR TEMPLATE KEY>" };
       email.MergeFields.Add("%EMAIL%", "joe@example.com");
       email.MergeFields.Add("%NAME%", "Joe Soap");
       client.Send(email);
     }
-  } catch (WebException e) { // This exception occurs in the event of a server error.
+  } catch (MessageBusException e) { // This exception occurs in the event of a server error.
     .
     .
     .
   }
 
 
-=== Retrieving Message Status
+=== Retrieving Email Send Message Status
 
 Status results for transmissions of messages to the MessageBus server are returned via the standard C# event model.
 The event is triggered each time messages are transmitted to the server and contain a status for each message that has
@@ -121,9 +129,9 @@ First define a method to be called when messages are transmitted:
 
     // statuses are returned in the same order in which they are sent.
     foreach(var status in transmissionEvent.Statuses) {
+      var toEmail = status.ToEmail; // The toEmail address
       var messageId = status.MessageId; // The MessageId of the message
-      var code = status.StatusCode; // The status code - 200 for success
-      var message = status.StatusMessage; // The reason if the message failed
+      var code = status.Status; // The status code - 0 for success
     }
   }
 
@@ -143,7 +151,9 @@ This is a snippet from the component registration:
   public static void AddComponentsTo(IWindsorContainer container) {
     .
     .
-    container.AddComponentLifeStyle("MessageBusClient", typeof(IMessageBusClient), typeof(AutoBatchingClient), Castle.Core.LifestyleType.Singleton);
+    container.AddComponentLifeStyle("MessageBusEmailClient", typeof(IMessageBusEmailClient), typeof(AutoBatchingClient), Castle.Core.LifestyleType.Singleton);
+    container.AddComponentLifeStyle("MessageBusStatsClient", typeof(IMessageBusStatsClient), typeof(DefaultStatsClient), Castle.Core.LifestyleType.Singleton);
+    container.AddComponentLifeStyle("MessageBusMailingListClient", typeof(IMessageBusMailingListClient), typeof(DefaultMailingListClient), Castle.Core.LifestyleType.Singleton);
     .
     .
     .
@@ -155,10 +165,19 @@ This is a snippet from the XML configuration file:
    .
    .
     <components>
-        <component id="MessageBusClient">
+        <component id="MessageBusEmailClient">
             <parameters>
               <apiKey>ABCD1234DEFA5678BCDE9012FABC3456</apiKey>
-              <apiVersion>2.2</apiVersion>
+            </parameters>
+        </component>
+        <component id="MessageBusStatsClient">
+            <parameters>
+              <apiKey>ABCD1234DEFA5678BCDE9012FABC3456</apiKey>
+            </parameters>
+        </component>
+        <component id="MessageBusMailingListClient">
+            <parameters>
+              <apiKey>ABCD1234DEFA5678BCDE9012FABC3456</apiKey>
             </parameters>
         </component>
     </components>
@@ -170,7 +189,7 @@ This is a snippet from the XML configuration file:
 
 Logging is disabled by default.  Simple console logging is supplied and can be enabled as follows:
 
-  var client = MessageBus.API.MessageBus.CreateClient("ABCD1234DEFA5678BCDE9012FABC3456", new ConsoleLogger());
+  var client = MessageBus.CreateEmailClient("ABCD1234DEFA5678BCDE9012FABC3456", new ConsoleLogger());
 
 Logging can be made to conform with the standards of the client application by supplying a custom implementation of the ILogger interface.
 
