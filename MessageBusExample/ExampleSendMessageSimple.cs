@@ -25,9 +25,12 @@ namespace MessageBusExample {
 
         static void Transmitted(IMessageBusTransmissionEvent e) {
             foreach (var status in e.Statuses) {
-
+                if (status.Succeeded) {
+                    Console.WriteLine(String.Format("Email queued for delivery to {0}.  MessageId = {1}", status.ToEmail, status.MessageId));
+                } else {
+                    Console.WriteLine(String.Format("Email NOT queued for delivery to {0}.  Reason = {1}", status.ToEmail, status.Status));
+                }
             }
-            Console.WriteLine(String.Format("Email Delivered.  MessageId = {0}", e.Statuses[0].MessageId));
         }
     }
 }

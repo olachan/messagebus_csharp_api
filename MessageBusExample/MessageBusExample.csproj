@@ -50,10 +50,9 @@
   <ItemGroup>
     <Compile Include="ExampleGetUnsubscribes.cs" />
     <Compile Include="ExampleGetStats.cs" />
-    <Compile Include="ExampleSingleMessagesWithTemplate.cs" />
     <Compile Include="ExampleSendMessageSimple.cs" />
-    <Compile Include="ExampleMultipleMessagesWithTemplate.cs" />
-    <Compile Include="ExampleMultipleMessages.cs" />
+    <Compile Include="ExampleSendTemplateMessageDetailed.cs" />
+    <Compile Include="ExampleSendMessageDetailed.cs" />
     <Compile Include="ExampleMailingLists.cs" />
     <Compile Include="ExampleGetDeliveryErrors.cs" />
     <Compile Include="ExampleForm1.cs">

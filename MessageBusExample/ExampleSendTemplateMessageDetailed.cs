@@ -4,12 +4,11 @@ using MessageBus.API;
 using MessageBus.API.V3;
 
 namespace MessageBusExample {
-    public class ExampleMultipleMessagesWithTemplate {
+    public class ExampleSendTemplateMessageDetailed {
 
-        private readonly IMessageBusEmailClient MessageBus
-            = MessageBusFactory.CreateEmailClient("<YOUR API KEY>");
+        private readonly IMessageBusEmailClient MessageBus = MessageBusFactory.CreateEmailClient("<YOUR API KEY>");
 
-        public ExampleMultipleMessagesWithTemplate() {
+        public ExampleSendTemplateMessageDetailed() {
             MessageBus.Transmitted += Transmitted;
         }
 
@@ -27,6 +26,13 @@ namespace MessageBusExample {
 
         static void Transmitted(IMessageBusTransmissionEvent e) {
             Console.WriteLine(String.Format("Email Delivered.  Succeeded:{0};  Failed:{1}", e.SuccessCount, e.FailureCount));
+            foreach (var status in e.Statuses) {
+                if (status.Succeeded) {
+                    Console.WriteLine(String.Format("Email queued for delivery to {0}.  MessageId = {1}", status.ToEmail, status.MessageId));
+                } else {
+                    Console.WriteLine(String.Format("Email NOT queued for delivery to {0}.  Reason = {1}", status.ToEmail, status.Status));
+                }
+            }
         }
     }
 }
