@@ -15,7 +15,7 @@ namespace MessageBusExample {
         void SendMessages(IEnumerable<Dictionary<string, string>> emails) {
             using (MessageBus) {
                 foreach (var fields in emails) {
-                    var email = new MessageBusTemplateEmail();
+                    var email = new MessageBusTemplateEmail { TemplateKey = "<YOUR TEMPLATE KEY>" };
                     foreach (var field in fields) {
                         email.MergeFields[field.Key] = field.Value;
                     }
