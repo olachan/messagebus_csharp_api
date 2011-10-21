@@ -255,17 +255,17 @@ namespace MessageBus.Impl {
     /// </summary>
     internal class MessageStatus : IMessageBusMessageStatus {
         public MessageStatus(BatchEmailResult response) {
-            Succeeded = (response.status == "200");
-            StatusCode = response.status;
-            StatusMessage = response.statusMessage;
+            Succeeded = (response.messageStatus == 0);
+            Status = response.messageStatus;
+            ToEmail = response.toEmail;
             MessageId = response.messageId;
         }
 
         public bool Succeeded { get; private set; }
 
-        public string StatusCode { get; private set; }
+        public int Status { get; private set; }
 
-        public string StatusMessage { get; private set; }
+        public string ToEmail { get; private set; }
 
         public string MessageId { get; private set; }
     }

@@ -1,4 +1,5 @@
-﻿using MessageBus.API;
+﻿using System;
+using MessageBus.API;
 using MessageBus.API.V3;
 using MessageBus.API.V3.Debug;
 using MessageBus.Impl;
@@ -66,6 +67,7 @@ namespace MessageBusTest {
         [TestMethod]
         public void Sends40BlackHoleMessagesToDemoUsingATemplate() {
             var mb = MessageBus.API.MessageBusFactory.CreateEmailClient(DemoTestApiKey, new ConsoleLogger());
+            mb.Transmitted += Transmitted;
             SetDebugOptions(mb);
             using (mb) {
                 for (int i = 0; i < 40; i++) {
@@ -78,6 +80,13 @@ namespace MessageBusTest {
                     email.MergeFields.Add("%NAME%", "Alice");
                     mb.Send(email);
                 }
+            }
+        }
+
+        private static void Transmitted(IMessageBusTransmissionEvent evt) {
+            Console.WriteLine("Messages Sent: {0}/{1}", evt.SuccessCount, evt.FailureCount);
+            foreach (var s in evt.Statuses) {
+                Console.WriteLine("MessageId {0}, Email {1}, Code {2}, Succeeded {3}", s.MessageId, s.ToEmail, s.Status, s.Succeeded);
             }
         }
 

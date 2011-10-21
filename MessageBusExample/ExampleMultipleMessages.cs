@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MessageBus.API;
 using MessageBus.API.V3;
 
@@ -9,10 +10,10 @@ namespace MessageBusExample {
             = MessageBusFactory.CreateEmailClient("<YOUR API KEY>");
 
         public ExampleMultipleMessages() {
-            MessageBus.Transmitted += transmitted;
+            MessageBus.Transmitted += Transmitted;
         }
 
-        void SendMessages(string[] emailAdresses) {
+        void SendMessages(IEnumerable<string> emailAdresses) {
             using (MessageBus) {
                 foreach (string emailAddress in emailAdresses) {
                     var email = new MessageBusEmail {
@@ -29,7 +30,7 @@ namespace MessageBusExample {
             }
         }
 
-        void transmitted(IMessageBusTransmissionEvent e) {
+        static void Transmitted(IMessageBusTransmissionEvent e) {
             Console.WriteLine(String.Format("Email Delivered.  Succeeded:{0};  Failed:{1}", e.SuccessCount, e.FailureCount));
         }
     }

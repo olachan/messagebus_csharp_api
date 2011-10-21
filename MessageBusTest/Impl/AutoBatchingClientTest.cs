@@ -47,8 +47,8 @@ namespace MessageBusTest.Impl {
                 results = new[] {
                     new BatchEmailResult {
                      messageId = "1234",
-                     status   = "OK",
-                     statusMessage = ""
+                     messageStatus = 0,
+                     toEmail = "bob@example.com"
                     }
                 }
             });
@@ -152,7 +152,7 @@ namespace MessageBusTest.Impl {
 
         [TestMethod]
         public void ChecksForThePresenceOfMergeFieldsWhenATemplateKeyIsSpecifiedAndWorksIfPresent() {
-            
+
             var email = new MessageBusTemplateEmail {
                 TemplateKey = "TEST",
                 ToEmail = "alice@example.com"
@@ -164,7 +164,7 @@ namespace MessageBusTest.Impl {
         [TestMethod]
         public void ThrowsAnErrorIfEmailMergeFieldIfMissing() {
             try {
-                
+
                 var email = new MessageBusEmail {
                     ToEmail = "bob@example.com",
                     Subject = "Test",
@@ -180,7 +180,7 @@ namespace MessageBusTest.Impl {
         [TestMethod]
         public void ThrowsAnErrorIfTheSuppliedMergeFieldsDoNotStartAndEndWithPercentSymbols() {
             try {
-                
+
                 var email = new MessageBusTemplateEmail {
                     TemplateKey = "TEST",
                     ToEmail = "alice@example.com"

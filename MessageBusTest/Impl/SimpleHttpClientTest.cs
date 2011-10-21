@@ -79,7 +79,7 @@ namespace MessageBusTest.Impl {
         public void MakesAValidApiRequest() {
             SetupDefaultExpectations();
 
-            var testRequest = new BatchEmailSendRequest {            
+            var testRequest = new BatchEmailSendRequest {
             };
 
             testRequest.messages.Add(new BatchEmailMessage {
@@ -99,7 +99,7 @@ namespace MessageBusTest.Impl {
                 successCount = 1,
                 failureCount = 0,
                 results = new[] {
-                    new BatchEmailResult { status = "OK", messageId = "1234ABCD1234ABCD" }
+                    new BatchEmailResult { messageStatus = 0, messageId = "1234ABCD1234ABCD", toEmail = "bob@example.com"}
                 }
             };
 

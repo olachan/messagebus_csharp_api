@@ -331,7 +331,7 @@ namespace MessageBusExample
         private void sendMessage()
         {
 
-            var mb = MessageBus.API.MessageBus.CreateEmailClient(tbApiKey.Text);
+            var mb = MessageBusFactory.CreateEmailClient(tbApiKey.Text);
             mb.Transmitted += mb_Transmitted;
 
             try

@@ -4,25 +4,22 @@ using MessageBus.API;
 using MessageBus.API.V3;
 
 namespace MessageBusExample {
-    public class ExampleMultipleMessagesWithTemplate {
+    public class ExampleSingleMessagesWithTemplate {
 
         private readonly IMessageBusEmailClient MessageBus
             = MessageBusFactory.CreateEmailClient("<YOUR API KEY>");
 
-        public ExampleMultipleMessagesWithTemplate() {
+        public ExampleSingleMessagesWithTemplate() {
             MessageBus.Transmitted += Transmitted;
+            MessageBus.EmailBufferSize = 0;
         }
 
-        void SendMessages(IEnumerable<Dictionary<string, string>> emails) {
-            using (MessageBus) {
-                foreach (var fields in emails) {
-                    var email = new MessageBusTemplateEmail();
-                    foreach (var field in fields) {
-                        email.MergeFields[field.Key] = field.Value;
-                    }
-                    MessageBus.Send(email);
-                }
+        void SendMessage(Dictionary<string, string> fields) {
+            var email = new MessageBusTemplateEmail();
+            foreach (var field in fields) {
+                email.MergeFields[field.Key] = field.Value;
             }
+            MessageBus.Send(email);
         }
 
         static void Transmitted(IMessageBusTransmissionEvent e) {
