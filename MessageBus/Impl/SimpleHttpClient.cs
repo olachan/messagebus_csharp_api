@@ -293,7 +293,7 @@ namespace MessageBus.Impl {
                 if (method == HttpMethod.POST) {
                     httpWebRequest.ContentType = "application/json; charset=utf-8";
                 }
-                httpWebRequest.Headers.Add("X-Messagebus-Key", ApiKey);
+                httpWebRequest.Headers.Add("X-MessageBus-Key", ApiKey);
                 httpWebRequest.UserAgent = USER_AGENT;
                 if (Proxy != null) {
                     httpWebRequest.Proxy = Proxy;
