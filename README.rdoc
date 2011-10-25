@@ -1,4 +1,4 @@
-= Messagebus C# API
+= MessageBus C# API
 
 == Downloading the DLL
 
