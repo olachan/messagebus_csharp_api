@@ -1,3 +1,7 @@
+// This example demonstrates various api methods relating to mailing list management.
+// We create a new blank mailing list; add two entries to the new list; delete one of
+// the entries; and then retrieve the list of all mailing lists
+
 using System;
 using MessageBus.API;
 using MessageBus.API.V3;
@@ -5,12 +9,13 @@ using MessageBus.API.V3;
 namespace MessageBusExample {
     public class ExampleMailingLists {
 
+        // replace with YOUR PRIVATE key, which can be found here: https://www.messagebus.com/api
         private readonly IMessageBusMailingListClient MessageBus = MessageBusFactory.CreateMailingListClient("<YOUR API KEY>");
 
         void RunExample() {
             try {
 
-                // first create a new empty mailing list
+                // first create a new blank mailing list
 
                 var list = MessageBus.CreateMailingList(new MessageBusMailingList {
                     Name = "example mailing list",
@@ -20,7 +25,7 @@ namespace MessageBusExample {
 
                 Console.WriteLine(String.Format("A mailing list with key {0} was created", list.Key));
 
-                // next add 2 new entries to the list
+                // after the new mailing list is created, add two entries to the list,
 
                 var entry1 = new MessageBusMailingListEntry();
                 entry1.MergeFields["%EMAIL%"] = "jane@example.com";
@@ -36,11 +41,11 @@ namespace MessageBusExample {
 
                 MessageBus.CreateMailingListEntry(list.Key, entry2);
 
-                // next delete one of the entries
+                // having added two entries, delete one of them
 
                 MessageBus.DeleteMailingListEntry(list.Key, "john@example.com");
 
-                // finnally list all the mailing lists
+                // finally, list all the mailing lists
 
                 var lists = MessageBus.ListMailingLists();
 
