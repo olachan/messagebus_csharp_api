@@ -15,31 +15,35 @@ namespace MessageBusExample {
         // replace with YOUR PRIVATE key, which can be found here: https://www.messagebus.com/api
         private readonly IMessageBusEmailClient MessageBus = MessageBusFactory.CreateEmailClient("<YOUR API KEY>");
 
+        // hook up the event handler
         public ExampleSendTemplateMessageDetailed() {
             MessageBus.Transmitted += Transmitted;
         }
 
-       // define one or more template message param arrays.  note that merge fields and custom headers
-       // are appended to each message after construction
-       void SendExampleTemplates() {
+        // define one or more template message param arrays.  merge fields and custom headers
+        // are appended to each message after construction
+        void SendExampleTemplates() {
+
             var msg1 = new MessageBusTemplateEmail {
-                    ToEmail = recipient1@example.com,
-                    ToName = "recipient1",
-                    TemplateKey = "",
-                };
+                ToEmail = "recipient1@example.com",
+                ToName = "recipient1",
+                TemplateKey = ""
+            };
             msg1.MergeFields["%FIELD1"] = "value1";
             msg1.MergeFields["%FIELD2"] = "value2";
-            $msg1.CustomHeaders["HEADER1"] = "header1";
-            $msg1.CustomHeaders["HEADER2"] = "header2";
+            msg1.CustomHeaders["HEADER1"] = "header1";
+            msg1.CustomHeaders["HEADER2"] = "header2";
+
             var msg2 = new MessageBusTemplateEmail {
-                    ToEmail = recipient2@example.com,
-                    ToName = "recipient2",
-                    TemplateKey = "",
-                }
+                ToEmail = "recipient2@example.com",
+                ToName = "recipient2",
+                TemplateKey = ""
+            };
             msg2.MergeFields["%FIELD1"] = "value1";
             msg2.MergeFields["%FIELD2"] = "value2";
-            $msg2.CustomHeaders["HEADER1"] = "header1";
-            $msg2.CustomHeaders["HEADER2"] = "header2";
+            msg2.CustomHeaders["HEADER1"] = "header1";
+            msg2.CustomHeaders["HEADER2"] = "header2";
+
             var templates = new[] { msg1, msg2 };
             SendMessages(templates);
         }
@@ -49,9 +53,9 @@ namespace MessageBusExample {
         // messages are sent when the API instance is closed or destructed.  In the example below, the 'using' statement
         // provides a scope around the instance.  The instance exits this scope upon completion of the 'foreach' loop,
         // resulting in the flushing and subsequent destruction of the instance, and the sending of the messages.
-         void SendMessages(IEnumerable<Dictionary<string, string>> emails) {
+        void SendMessages(IEnumerable<MessageBusTemplateEmail> emails) {
             using (MessageBus) {
-                foreach (var fields in emails) {
+                foreach (var email in emails) {
                     MessageBus.Send(email);
                 }
             }

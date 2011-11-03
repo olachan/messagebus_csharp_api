@@ -16,35 +16,43 @@ namespace MessageBusExample {
         private readonly IMessageBusEmailClient MessageBus
             = MessageBusFactory.CreateEmailClient("<YOUR API KEY>");
 
+        // hook up the event handler
         public ExampleSendMessageDetailed() {
             MessageBus.Transmitted += Transmitted;
         }
 
         // define one or more message param arrays
         void SendExampleEmails() {
+
+            var msg1 = new MessageBusEmail {
+                ToEmail = "recipient1@example.com",
+                ToName = "recipient1",
+                FromEmail = "bob@example.com",
+                FromName = "Bob",
+                Subject = "Test API Email",
+                HtmlBody =
+                    "<html><body>This is a test message from the MessageBus C# client.</body></html>",
+                PlaintextBody = "This is a test message from the MessageBus C# client",
+                Tags = new[] { "tag1", "tag2" }
+            };
+            msg1.CustomHeaders["HEADER"] = "example header";
+
+            var msg2 = new MessageBusEmail {
+                ToEmail = "recipient2@example.com",
+                ToName = "recipient2",
+                FromEmail = "bob@example.com",
+                FromName = "Bob",
+                Subject = "Test API Email with a different subject",
+                HtmlBody =
+                    "<html><body>This is a test message from the MessageBus C# client with a different HTML body.</body></html>",
+                PlaintextBody =
+                    "This is a test message from the MessageBus C# client with a different Plaintext body",
+                Tags = new[] { "tag3", "tag4" }
+            };
+            msg2.CustomHeaders["HEADER"] = "example header";
+
             var emails = new[] {
-                new MessageBusEmail {
-                    ToEmail = recipient1@example.com,
-                    ToName = "recipient1",
-                    FromEmail = "bob@example.com",
-                    FromName = "Bob",
-                    Subject = "Test API Email",
-                    HtmlBody = "<html><body>This is a test message from the MessageBus C# client.</body></html>",
-                    PlaintextBody = "This is a test message from the MessageBus C# client",
-                    Tags = new[] { "tag1", "tag2" },
-                    CustomHeaders["HEADER"] = "example header"
-                },
-                new MessageBusEmail {
-                    ToEmail = recipient2@example.com,
-                    ToName = "recipient2",
-                    FromEmail = "bob@example.com",
-                    FromName = "Bob",
-                    Subject = "Test API Email with a different subject",
-                    HtmlBody = "<html><body>This is a test message from the MessageBus C# client with a different HTML body.</body></html>",
-                    PlaintextBody = "This is a test message from the MessageBus C# client with a different Plaintext body",
-                    Tags = new[] { "tag3", "tag4" },
-                    CustomHeaders["HEADER"] = "example header"
-                }
+              msg1, msg2  
             };
             SendMessages(emails);
         }
@@ -65,10 +73,10 @@ namespace MessageBusExample {
         // SendMessages returns an array of items, including status information for the message batch, and
         // an array of individual status information for each message sent.  Returned information is placed
         // into e.  Information about individual messages is contained within e.Statuses
-         static void Transmitted(IMessageBusTransmissionEvent e) {
+        static void Transmitted(IMessageBusTransmissionEvent e) {
             Console.WriteLine(String.Format("Email Delivered.  Succeeded:{0};  Failed:{1}", e.SuccessCount, e.FailureCount));
-              // In this example, we loop over each row within e.Statuses to provide feedback for each message sent
-              foreach (var status in e.Statuses) {
+            // In this example, we loop over each row within e.Statuses to provide feedback for each message sent
+            foreach (var status in e.Statuses) {
                 if (status.Succeeded) {
                     Console.WriteLine(String.Format("Email queued for delivery to {0}.  MessageId = {1}", status.ToEmail, status.MessageId));
                 } else {
