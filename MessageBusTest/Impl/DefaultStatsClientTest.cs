@@ -16,7 +16,6 @@ namespace MessageBusTest.Impl {
         private DefaultStatsClient StatsClient;
         private IMessageBusHttpClient MockHttpClient;
         private ILogger MockLogger;
-        private IMessageBusTransmissionEvent TestEvent;
 
         public TestContext TestContext { get; set; }
 

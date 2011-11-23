@@ -142,7 +142,7 @@ namespace MessageBusTest.Impl {
 
             try {
                 Client.SendEmails(new BatchEmailSendRequest());
-            } catch (MessageBusException e) {
+            } catch (MessageBusException) {
                 return;
             }
             Assert.Fail("Exception Expected");

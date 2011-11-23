@@ -11,9 +11,11 @@ namespace MessageBusExample {
         // replace with YOUR PRIVATE key, which can be found here: https://www.messagebus.com/api
         private readonly IMessageBusStatsClient MessageBus = MessageBusFactory.CreateStatsClient("<YOUR API KEY>");
 
-        // GetUnsubscribes optionally accepts startDate and endDate parameters which define the range of dates to
-        // supply unsubscribes for.  if these parameters are not supplied, startDate defaults to 7 days ago and
-        // endDate defaults to today.  Do not enter a startDate greater than 7 days ago.
+        /// <summary>
+        /// GetUnsubscribes optionally accepts startDate and endDate parameters which define the range of dates to
+        /// supply unsubscribes for.  if these parameters are not supplied, startDate defaults to 7 days ago and
+        /// endDate defaults to today.  Do not enter a startDate greater than 7 days ago. 
+        /// </summary>        
         void GetUnsubscribes() {
             var startDate = DateTime.Today.AddDays(-7);
             var endDate = DateTime.Today.AddDays(-1);
@@ -23,7 +25,7 @@ namespace MessageBusExample {
             MessageBusUnsubscribeResult[] list;
             try {
                 list = MessageBus.RetrieveUnsubscribes(startDate, endDate);
-            } catch (MessageBusException e) {
+            } catch (MessageBusException) {
                 throw;
             }
 

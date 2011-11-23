@@ -265,7 +265,7 @@ namespace MessageBus.Impl {
                                 try {
                                     var result = Serializer.Deserialize<ErrorResponse>(responseString);
                                     message = result.statusMessage;
-                                } catch (ArgumentException x) {
+                                } catch (ArgumentException) {
                                     message = responseString;
                                 }
                             }

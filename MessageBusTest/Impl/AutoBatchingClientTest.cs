@@ -134,7 +134,7 @@ namespace MessageBusTest.Impl {
         public void ValidatesEachCallToSend() {
             try {
                 EmailClient.Send(new MessageBusEmail());
-            } catch (MessageBusValidationFailedException e) {
+            } catch (MessageBusValidationFailedException) {
                 return;
             }
             Assert.Fail("Expected Exception to be thrown");
@@ -171,7 +171,7 @@ namespace MessageBusTest.Impl {
                     FromEmail = "alice@example.com"
                 };
                 EmailClient.Send(email);
-            } catch (MessageBusValidationFailedException e) {
+            } catch (MessageBusValidationFailedException) {
                 return;
             }
             Assert.Fail("Expected Exception to be thrown");
@@ -187,7 +187,7 @@ namespace MessageBusTest.Impl {
                 };
                 email.MergeFields.Add("EMAIL", "bob@example.com");
                 EmailClient.Send(email);
-            } catch (MessageBusValidationFailedException e) {
+            } catch (MessageBusValidationFailedException) {
                 return;
             }
             Assert.Fail("Expected Exception to be thrown");
@@ -204,7 +204,7 @@ namespace MessageBusTest.Impl {
                 };
                 email.CustomHeaders.Add("message-id", "some message id");
                 EmailClient.Send(email);
-            } catch (MessageBusValidationFailedException e) {
+            } catch (MessageBusValidationFailedException) {
                 return;
             }
             Assert.Fail("Expected Exception to be thrown");

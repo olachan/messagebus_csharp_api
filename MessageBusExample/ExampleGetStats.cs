@@ -11,9 +11,11 @@ namespace MessageBusExample {
         // replace with YOUR PRIVATE key, which can be found here: https://www.messagebus.com/api
         private readonly IMessageBusStatsClient MessageBus = MessageBusFactory.CreateStatsClient("<YOUR API KEY>");
 
-        // GetStats optionally accepts startDate and endDate parameters which define the range of dates to
-        // supply stats for.  If these parameters are not supplied, startDate defaults to 30 days ago and
-        // endDate defaults to today.  Do not enter a startDate greater than 30 days ago.
+        /// <summary>
+        /// GetStats optionally accepts startDate and endDate parameters which define the range of dates to
+        /// supply stats for.  If these parameters are not supplied, startDate defaults to 30 days ago and
+        /// endDate defaults to today.  Do not enter a startDate greater than 30 days ago.
+        /// </summary>
         void GetStats() {
             var startDate = DateTime.Today.AddDays(-7);
             var endDate = DateTime.Today.AddDays(-1);
@@ -23,7 +25,7 @@ namespace MessageBusExample {
              MessageBusStatsResult[] list;
             try {
                 list = MessageBus.RetrieveStats(startDate, endDate, null);
-            } catch (MessageBusException e) {
+            } catch (MessageBusException) {
                 throw;
             }
 

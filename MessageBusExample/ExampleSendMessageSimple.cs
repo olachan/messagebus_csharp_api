@@ -7,20 +7,25 @@ using MessageBus.API.V3;
 namespace MessageBusExample {
     public class ExampleSendMessageSimple {
 
-        // If you are sending messages from various points across your code, the
-        // MessageBusFactory will create multiple thread-safe object instances to
-        // efficiently batch transactions, resulting in higher throughput.
-
         // replace with YOUR PRIVATE key, which can be found here: https://www.messagebus.com/api
         private readonly IMessageBusEmailClient MessageBus
             = MessageBusFactory.CreateEmailClient("<YOUR API KEY>");
 
-        // setting the EmailBufferSize to 0 flushes the message buffer and sends the message immediately
+        /// <summary>
+        /// Setting the EmailBufferSize to 0 flushes the message buffer and sends the message immediately
+        /// </summary>
         public ExampleSendMessageSimple() {
             MessageBus.Transmitted += Transmitted;
             MessageBus.EmailBufferSize = 0;
         }
 
+        /// <summary>
+        /// If you are sending messages from various points across your code, the
+        /// MessageBusFactory will create multiple thread-safe object instances to
+        /// efficiently batch transactions, resulting in higher throughput.
+        /// </summary>
+        /// <param name="emailAddress">email address</param>
+        /// <param name="name">email name</param>
         void SendMessage(string emailAddress, string name) {
             var email = new MessageBusEmail {
                 ToEmail = emailAddress,
@@ -30,10 +35,13 @@ namespace MessageBusExample {
             };
             MessageBus.Send(email);
         }
-
-        // SendMessage returns an array of items, including status information for the message batch, and
-        // an array of individual status information for each message sent.  Returned information is placed
-        // into e.  Information about individual messages is contained within e.Statuses
+        
+        /// <summary>
+        /// SendMessage returns an array of items, including status information for the message batch, and
+        /// an array of individual status information for each message sent.  Returned information is placed
+        /// into e.  Information about individual messages is contained within e.Statuses
+        /// </summary>
+        /// <param name="e">tranmission event</param>
         static void Transmitted(IMessageBusTransmissionEvent e) {
             // In this example, we loop over each row within e.Statuses to provide feedback for each message sent
             foreach (var status in e.Statuses) {

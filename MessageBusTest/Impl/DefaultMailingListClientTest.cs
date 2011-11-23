@@ -13,7 +13,7 @@ namespace MessageBusTest.Impl {
         private DefaultMailingListClient MailingListClient;
         private IMessageBusHttpClient MockHttpClient;
         private ILogger MockLogger;
-        private IMessageBusTransmissionEvent TestEvent;
+        //private IMessageBusTransmissionEvent TestEvent;
 
         public TestContext TestContext { get; set; }
 

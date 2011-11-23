@@ -12,6 +12,11 @@ namespace MessageBusExample {
         // replace with YOUR PRIVATE key, which can be found here: https://www.messagebus.com/api
         private readonly IMessageBusMailingListClient MessageBus = MessageBusFactory.CreateMailingListClient("<YOUR API KEY>");
 
+        /// <summary>
+        /// This example demonstrates various api methods relating to mailing list management.
+        /// We create a new blank mailing list; add two entries to the new list; delete one of
+        /// the entries; and then retrieve the list of all mailing lists
+        /// </summary>
         void RunExample() {
             try {
 
@@ -54,7 +59,7 @@ namespace MessageBusExample {
                     Console.WriteLine(String.Format("A list named {0} with key {1}", item.Name, item.Key));
                 }
 
-            } catch (MessageBusException e) {
+            } catch (MessageBusException) {
                 throw;
             }
         }

@@ -8,7 +8,7 @@ namespace MessageBusExample
     static class ExampleSendMailProgram
     {
         /// <summary>
-        /// The main entry point for the application.
+        /// The main entry point for the ExampleForm1 application.
         /// </summary>
         [STAThread]
         static void Main()
