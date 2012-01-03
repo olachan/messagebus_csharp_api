@@ -29,7 +29,7 @@ namespace MessageBus.SPI {
             subject = email.Subject;
             plaintextBody = email.PlaintextBody;
             htmlBody = email.HtmlBody;
-            customHeaders = new Dictionary<string, string>(0);
+            customHeaders = email.CustomHeaders;
             tags = email.Tags;
         }
 
