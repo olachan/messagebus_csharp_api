@@ -1,4 +1,4 @@
-// Copyright (c) 2011. Message Bus
+// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -42,5 +42,37 @@ namespace MessageBusExample {
                 Console.WriteLine(String.Format("At {0} message {1} to {2} returned {3}", item.Time.ToString("o"), item.MessageId, item.ToEmail, item.DSNCode));
             }
         }
+
+        /// <summary>
+        /// GetDeliveryErrors optionally accepts startDate, endDate, and tag parameters which define the range of dates to
+        /// supply stats for and filter by tag.  If these parameters are not supplied, startDate defaults to 7 days ago and 
+        /// endDate defaults to today.  Do not enter a startDate greater than 7 days ago.
+        /// </summary>
+        void GetDeliveryErrorsWithTag()
+        {
+            var startDate = DateTime.Today.AddDays(-7);
+            var endDate = DateTime.Today.AddDays(-1);
+            var tag = "csharp_example";
+
+            // GetDeliveryErrors returns an array of items, each reflecting delivery errors for a single day within
+            // the requested range.  Returned items are placed into list.
+            MessageBusDeliveryErrorResult[] list;
+            try
+            {
+                list = MessageBus.RetrieveDeliveryErrors(startDate, endDate, tag);
+            }
+            catch (MessageBusException)
+            {
+                throw;
+            }
+
+            // Iterate over each item within list to see the results
+            foreach (var item in list)
+            {
+                var tags = String.Join(",", item.tags);
+                Console.WriteLine(String.Format("At {0} message {1} to {2} with tags {3} returned {4}", item.Time.ToString("o"), item.MessageId, item.ToEmail, tags, item.DSNCode));
+            }
+        }
+
     }
 }

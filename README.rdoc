@@ -1,4 +1,4 @@
-= MessageBus C# API
+= Message Bus C# API
 
 == Downloading the DLL
 
@@ -8,17 +8,17 @@ The dll can be downloaded from (https://github.com/downloads/messagebus/messageb
 
   git clone git@github.com:messagebus/messagebus_csharp_api.git
 
-== Sending Mail with MessageBus
+== Sending Mail with Message Bus
 
-=== Creating an instance of the MessageBus Email client:
+=== Creating an instance of the Message Bus Email client:
 
   var client = MessageBusFactory.CreateEmailClient("<Your API Key Here>");
 
-=== Creating an instance of the MessageBus Stats client:
+=== Creating an instance of the Message Bus Stats client:
 
   var client = MessageBusFactory.CreateStatsClient("<Your API Key Here>");
 
-=== Creating an instance of the MessageBus Mailing List client:
+=== Creating an instance of the Message Bus Mailing List client:
 
   var client = MessageBusFactory.CreateMailingListClient("<Your API Key Here>");
 
@@ -26,7 +26,7 @@ The dll can be downloaded from (https://github.com/downloads/messagebus/messageb
 
 === Taking advantage of bufferring
 
-The MessageBus API buffers e-mail on the client and transmits email to the server in batches.  This behaviour can be managed with the following operations:
+The Message Bus API buffers e-mail on the client and transmits email to the server in batches.  This behaviour can be managed with the following operations:
 
 To set the number of emails to buffer before automatically sending (the default value is 20):
 
@@ -56,7 +56,7 @@ Alternatively, the loop can be surrounded with a using {} block as follows:
         client.Send(new MessageBusEmail {
           FromEmail = "apitest@messagebus.com",
           ToEmail = item.EmailAddress,
-          Subject = "Hello from MessageBus",
+          Subject = "Hello from Message Bus",
           PlaintextBody = "Hello and Welcome!",
           HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
         });
@@ -71,7 +71,7 @@ Alternatively, the loop can be surrounded with a using {} block as follows:
 	
 === Sending pre-formatted email
 
-Preformatted email is email in which the subject and body are composed before sending to MessageBus.  The following example will send a single pre-formatted email via MessageBus:
+Preformatted email is email in which the subject and body are composed before sending to Message Bus.  The following example will send a single pre-formatted email via Message Bus:
 
   var client = MessageBusFactory.CreateEmailClient("ABCD1234DEFA5678BCDE9012FABC3456");
 
@@ -80,7 +80,7 @@ Preformatted email is email in which the subject and body are composed before se
       client.Send(new MessageBusEmail {
         FromEmail = "apitest@messagebus.com",
         ToEmail = "test@example.com",
-        Subject = "Hello from MessageBus",
+        Subject = "Hello from Message Bus",
         PlaintextBody = "Hello and Welcome!",
         HtmlBody = "<html><body><h1>Hello and Welcome!</h1></body></html>"
       });
@@ -94,7 +94,7 @@ Preformatted email is email in which the subject and body are composed before se
 
 === Sending Template email
 
-An ApiTemplate can be defined on the MessageBus website.  In order to send mail using an ApiTemplate, copy the ApiTemplate key into your code, for example:
+An ApiTemplate can be defined on the Message Bus website.  In order to send mail using an ApiTemplate, copy the ApiTemplate key into your code, for example:
 
   var client = MessageBusFactory.CreateEmailClient("ABCD1234DEFA5678BCDE9012FABC3456");
 
@@ -114,7 +114,7 @@ An ApiTemplate can be defined on the MessageBus website.  In order to send mail 
 
 === Retrieving Email Send Message Status
 
-Status results for transmissions of messages to the MessageBus server are returned via the standard C# event model.
+Status results for transmissions of messages to the Message Bus server are returned via the standard C# event model.
 The event is triggered each time messages are transmitted to the server and contain a status for each message that has
 been sent.  The statues are returned in the same order they were sent.
 
@@ -144,7 +144,7 @@ Next add the method to the event chain:
 
 === Registering IMessageBusClient with and IoC Container
 
-The following example shows how the MessageBus API can be used to inject the MessageBus Client into application services.  This example using the CastleWindsor IoC container.
+The following example shows how the Message Bus API can be used to inject the Message Bus Client into application services.  This example using the CastleWindsor IoC container.
 
 This is a snippet from the component registration:
 
@@ -193,7 +193,23 @@ Logging is disabled by default.  Simple console logging is supplied and can be e
 
 Logging can be made to conform with the standards of the client application by supplying a custom implementation of the ILogger interface.
 
+== License
+
+Copyright (c) 2012. Mail Bypass, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may 
+not use this file except in compliance with the License. You may obtain 
+a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software 
+distributed under the License is distributed on an "AS IS" BASIS, 
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+See the License for the specific language governing permissions and 
+limitations under the License
+
 == More Info
 
-If you have any questions or problems, please contact MessageBus (https://www.messagebus.com/contact)
+If you have any questions or problems, please contact Message Bus (https://www.messagebus.com/contact)
 

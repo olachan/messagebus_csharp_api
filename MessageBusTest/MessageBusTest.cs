@@ -1,4 +1,4 @@
-// Copyright (c) 2011. Message Bus
+// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -111,7 +111,7 @@ namespace MessageBusTest {
         public void RetrievesDeliveryErrorsFromDemo() {
             var mb = MessageBus.API.MessageBusFactory.CreateStatsClient(DemoTestApiKey, new ConsoleLogger());
             SetDebugOptions(mb);
-            var results = mb.RetrieveDeliveryErrors(null, null);
+            var results = mb.RetrieveDeliveryErrors(null, null, null);
             Assert.IsNotNull(results);
         }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2011. Message Bus
+// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -45,8 +45,13 @@ namespace MessageBus.Impl {
             return response.results.Select(r => new MessageBusStatsResult(r)).ToArray();
         }
 
-        public MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate) {
-            var response = HttpClient.RetrieveDeliveryErrors(startDate, endDate);
+        public MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate)
+        {
+            return RetrieveDeliveryErrors(startDate, endDate, null);
+        }
+
+        public MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate, string tag) {
+            var response = HttpClient.RetrieveDeliveryErrors(startDate, endDate, tag);
             if (response.statusCode != 200) {
                 throw new MessageBusException(response.statusCode, response.statusMessage);
             }

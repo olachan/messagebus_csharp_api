@@ -1,4 +1,4 @@
-// Copyright (c) 2011. Message Bus
+// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -26,7 +26,7 @@ namespace MessageBus.Impl {
         private readonly ILogger Logger;
         private readonly String ApiKey;
 
-        private const string USER_AGENT = "MessageBusAPI:3.0.0-CSHARP:3.5";
+        private const string USER_AGENT = "MessageBusAPI:3.0.1-CSHARP:3.5";
         private const string REQUEST_URL_FORMAT = "{0}/{1}/{2}";
         private const string SEND_EMAILS = "emails/send";
         private const string SEND_TEMPLATE = "templates/send";
@@ -36,6 +36,7 @@ namespace MessageBus.Impl {
         private const string MAILING_LISTS = "mailing_lists";
         private const string MAILING_LIST_ENTRIES_FORMAT = "mailing_list/{0}/entries";
         private const string MAILING_LIST_ENTRY_FORMAT = "mailing_list/{0}/entry/{1}";
+        private const string ISO_8601_DATE_FORMAT = "yyyy-MM-ddTHH:mm:ssZ";
 
         public enum HttpMethod {
             GET, POST, DELETE, PUT
@@ -118,10 +119,10 @@ namespace MessageBus.Impl {
             if (startDate.HasValue || endDate.HasValue || tag != null) {
                 uriString += "?";
                 if (startDate.HasValue) {
-                    uriString += "startDate=" + startDate.Value.ToString("yyyy-MM-dd") + "&";
+                    uriString += "startDate=" + startDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
                 }
                 if (endDate.HasValue) {
-                    uriString += "endDate=" + endDate.Value.ToString("yyyy-MM-dd") + "&";
+                    uriString += "endDate=" + endDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
                 }
                 if (tag != null) {
                     uriString += "tag=" + tag + "&";
@@ -138,16 +139,22 @@ namespace MessageBus.Impl {
             }
         }
 
-        public DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate) {
+        public DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate, string tag)
+        {
             var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, DELIVERY_ERRORS);
 
-            if (startDate.HasValue || endDate.HasValue) {
+            if (startDate.HasValue || endDate.HasValue || tag != null)
+            {
                 uriString += "?";
                 if (startDate.HasValue) {
-                    uriString += "startDate=" + startDate.Value.ToString("yyyy-MM-dd") + "&";
+                    uriString += "startDate=" + startDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
                 }
                 if (endDate.HasValue) {
-                    uriString += "endDate=" + endDate.Value.ToString("yyyy-MM-dd") + "&";
+                    uriString += "endDate=" + endDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
+                }
+                if (tag != null)
+                {
+                    uriString += "tag=" + tag + "&";
                 }
                 uriString = uriString.TrimEnd('&');
             }
@@ -167,10 +174,10 @@ namespace MessageBus.Impl {
             if (startDate.HasValue || endDate.HasValue) {
                 uriString += "?";
                 if (startDate.HasValue) {
-                    uriString += "startDate=" + startDate.Value.ToString("yyyy-MM-dd") + "&";
+                    uriString += "startDate=" + startDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
                 }
                 if (endDate.HasValue) {
-                    uriString += "endDate=" + endDate.Value.ToString("yyyy-MM-dd") + "&";
+                    uriString += "endDate=" + endDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
                 }
                 uriString = uriString.TrimEnd('&');
             }

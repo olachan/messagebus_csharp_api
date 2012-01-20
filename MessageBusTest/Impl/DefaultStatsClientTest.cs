@@ -1,4 +1,4 @@
-// Copyright (c) 2011. Message Bus
+// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -47,8 +47,40 @@ namespace MessageBusTest.Impl {
                 x =>
                 x.RetrieveDeliveryErrors(
                     Arg<DateTime>.Is.Equal(DateTime.Today.AddDays(-1)),
-                    Arg<DateTime>.Is.Equal(DateTime.Today)))
+                    Arg<DateTime>.Is.Equal(DateTime.Today), 
+                    Arg<String>.Is.Equal(null)))
                 .Return(new DeliveryErrorsResponse {
+                    statusCode = 200,
+                    results = new List<DeliveryErrorsResponseResult> {
+                        result
+                    }
+                });
+            var startDate = DateTime.Today.AddDays(-1);
+            var endDate = DateTime.Today;
+            var actual = StatsClient.RetrieveDeliveryErrors(startDate, endDate, null);
+            Assert.AreEqual("403", actual[0].DSNCode);
+            Assert.AreEqual("TEST", actual[0].MessageId);
+            Assert.AreEqual("test@example.com", actual[0].ToEmail);
+        }
+
+        [TestMethod()]
+        public void RetrieveDeliveryErrorsTestNoTagMethod()
+        {
+            var result = new DeliveryErrorsResponseResult
+            {
+                DSNCode = "403",
+                messageId = "TEST",
+                time = DateTime.Now,
+                toEmail = "test@example.com"
+            };
+            MockHttpClient.Expect(
+                x =>
+                x.RetrieveDeliveryErrors(
+                    Arg<DateTime>.Is.Equal(DateTime.Today.AddDays(-1)),
+                    Arg<DateTime>.Is.Equal(DateTime.Today),
+                    Arg<String>.Is.Equal(null)))
+                .Return(new DeliveryErrorsResponse
+                {
                     statusCode = 200,
                     results = new List<DeliveryErrorsResponseResult> {
                         result
@@ -68,13 +100,14 @@ namespace MessageBusTest.Impl {
                 x =>
                 x.RetrieveDeliveryErrors(
                     Arg<DateTime>.Is.Anything,
-                    Arg<DateTime>.Is.Anything))
+                    Arg<DateTime>.Is.Anything,
+                    Arg<String>.Is.Anything))
                 .Return(new DeliveryErrorsResponse {
                     statusCode = 503,
                     statusMessage = "Service Temporarily Unavailable"
                 });
             try {
-                StatsClient.RetrieveDeliveryErrors(null, null);
+                StatsClient.RetrieveDeliveryErrors(null, null, null);
             } catch (MessageBusException e) {
                 Assert.AreEqual(503, e.StatusCode);
                 Assert.IsTrue(e.IsRetryable());
@@ -89,10 +122,11 @@ namespace MessageBusTest.Impl {
                 x =>
                 x.RetrieveDeliveryErrors(
                     Arg<DateTime>.Is.Anything,
-                    Arg<DateTime>.Is.Anything))
+                    Arg<DateTime>.Is.Anything,
+                    Arg<String>.Is.Anything))
                 .Throw(new MessageBusException(new WebException("Connection Rufused", WebExceptionStatus.ConnectFailure)));
             try {
-                StatsClient.RetrieveDeliveryErrors(null, null);
+                StatsClient.RetrieveDeliveryErrors(null, null, null);
             } catch (MessageBusException e) {
                 Assert.AreEqual(-1, e.StatusCode);
                 Assert.IsFalse(e.IsRetryable());

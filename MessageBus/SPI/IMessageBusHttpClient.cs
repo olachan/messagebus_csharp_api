@@ -1,4 +1,4 @@
-// Copyright (c) 2011. Message Bus
+// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -25,7 +25,7 @@ namespace MessageBus.SPI {
         BatchEmailResponse SendEmails(BatchEmailSendRequest batchEmailSendRequest);
         BatchEmailResponse SendEmails(BatchTemplateSendRequest batchTemplateSendRequest);
         StatsResponse RetrieveStats(DateTime? startDate, DateTime? endDate, String tag);
-        DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate);
+        DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate, String tag);
         UnsubscribesResponse RetrieveUnsubscribes(DateTime? startDate, DateTime? endDate);
         MailingListCreateResponse CreateMailingList(MailingListCreateRequest mailingListCreateRequest);
         MailingListsResponse ListMailingLists();

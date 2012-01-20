@@ -1,4 +1,4 @@
-// Copyright (c) 2011. Message Bus
+// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -17,11 +17,14 @@ namespace MessageBus.API.V3 {
             MessageId = result.messageId;
             Time = result.time;
             DSNCode = result.DSNCode;
+            tags = result.tags;
         }
 
         public string ToEmail { get; private set; }
         public string MessageId { get; private set; }
         public DateTime Time { get; private set; }
         public string DSNCode { get; private set; }
+        public string[] tags { get; private set; }
+        public string DSNMessage { get; private set; }
     }
 }
