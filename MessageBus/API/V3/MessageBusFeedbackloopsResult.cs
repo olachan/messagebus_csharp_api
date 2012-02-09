@@ -11,24 +11,13 @@ using System;
 using MessageBus.SPI;
 
 namespace MessageBus.API.V3 {
-    public class MessageBusMailingList {
-
-        public MessageBusMailingList() {
-
+    public class MessageBusFeedbackloopsResult {
+        public MessageBusFeedbackloopsResult(FeedbackloopsResponseResult result) {
+            ToEmail = result.toEmail;
+            Time = result.time;
         }
 
-        public MessageBusMailingList(MailingListItem item) {
-            Key = item.key;
-            Name = item.name;
-            MergeFieldKeys = item.mergeFieldKeys;
-            ValidCount = item.validCount;
-            InvalidCount = item.invalidCount;
-        }
-
-        public string Key { get; set; }
-        public string Name { get; set; }
-        public string[] MergeFieldKeys { get; set; }
-        public int ValidCount { get; set; }
-        public int InvalidCount { get; set; }
+        public string ToEmail { get; private set; }
+        public DateTime Time { get; private set; }
     }
 }

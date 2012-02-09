@@ -27,7 +27,7 @@ namespace MessageBus.SPI {
         StatsResponse RetrieveStats(DateTime? startDate, DateTime? endDate, String tag);
         DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate, String tag);
         UnsubscribesResponse RetrieveUnsubscribes(DateTime? startDate, DateTime? endDate);
-        MailingListCreateResponse CreateMailingList(MailingListCreateRequest mailingListCreateRequest);
+        FeedbackloopsResponse RetrieveFeedbackloops(DateTime? startDate, DateTime? endDate);
         MailingListsResponse ListMailingLists();
         MailingListEntryCreateResponse CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest);
         MailingListEntryDeleteResponse DeleteMailingListEntry(string mailingListKey, string emailAddress);

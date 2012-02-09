@@ -37,7 +37,10 @@ namespace MessageBusTest.Impl {
         public void ListMailingListsTest() {
             var result = new MailingListItem() {
                 key = "TEST",
-                name = "hello"
+                name = "hello",
+                mergeFieldKeys = new[] { "%EMAIL%", "%NAME%" },
+                validCount = 2,
+                invalidCount = 1
             };
             MockHttpClient.Expect(
                 x =>
@@ -51,6 +54,10 @@ namespace MessageBusTest.Impl {
             var actual = MailingListClient.ListMailingLists();
             Assert.AreEqual("hello", actual[0].Name);
             Assert.AreEqual("TEST", actual[0].Key);
+            Assert.AreEqual("%EMAIL%", actual[0].MergeFieldKeys[0]);
+            Assert.AreEqual("%NAME%", actual[0].MergeFieldKeys[1]);
+            Assert.AreEqual(2, actual[0].ValidCount); 
+            Assert.AreEqual(1, actual[0].InvalidCount);
         }
 
         [TestMethod()]
@@ -77,21 +84,21 @@ namespace MessageBusTest.Impl {
             MailingListClient.CreateMailingListEntry("TEST", entry);
         }
 
-        [TestMethod()]
-        public void CreateMailingListTest() {
-            MockHttpClient.Expect(
-                x =>
-                x.CreateMailingList(Arg<MailingListCreateRequest>.Is.Anything))
-                .Return(new MailingListCreateResponse {
-                    statusCode = 201,
-                    key = "TEST"
-                });
-            var actual = MailingListClient.CreateMailingList(new MessageBusMailingList {
-                MergeFieldKeys = new[] { "%EMAIL", "%NAME%" },
-                Name = "Test"
-            });
-            Assert.AreEqual("Test", actual.Name);
-            Assert.AreEqual("TEST", actual.Key);
-        }
+//        [TestMethod()]
+//        public void CreateMailingListTest() {
+//            MockHttpClient.Expect(
+//                x =>
+//                x.CreateMailingList(Arg<MailingListCreateRequest>.Is.Anything))
+//                .Return(new MailingListCreateResponse {
+//                    statusCode = 201,
+//                    key = "TEST"
+//                });
+//            var actual = MailingListClient.CreateMailingList(new MessageBusMailingList {
+//                MergeFieldKeys = new[] { "%EMAIL", "%NAME%" },
+//                Name = "Test"
+//            });
+//            Assert.AreEqual("Test", actual.Name);
+//            Assert.AreEqual("TEST", actual.Key);
+//        }
     }
 }

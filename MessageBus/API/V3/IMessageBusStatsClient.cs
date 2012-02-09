@@ -15,5 +15,6 @@ namespace MessageBus.API.V3 {
         MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate);
         MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate, string tag);
         MessageBusUnsubscribeResult[] RetrieveUnsubscribes(DateTime? startDate, DateTime? endDate);
+        MessageBusFeedbackloopsResult[] RetrieveFeedbackloops(DateTime? startDate, DateTime? endDate);
     }
 }

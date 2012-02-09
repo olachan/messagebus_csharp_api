@@ -45,8 +45,7 @@ namespace MessageBus.Impl {
             return response.results.Select(r => new MessageBusStatsResult(r)).ToArray();
         }
 
-        public MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate)
-        {
+        public MessageBusDeliveryErrorResult[] RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate) {
             return RetrieveDeliveryErrors(startDate, endDate, null);
         }
 
@@ -65,6 +64,15 @@ namespace MessageBus.Impl {
             }
             return response.results.Select(r => new MessageBusUnsubscribeResult(r)).ToArray();
         }
+
+        public MessageBusFeedbackloopsResult[] RetrieveFeedbackloops(DateTime? startDate, DateTime? endDate) {
+            var response = HttpClient.RetrieveFeedbackloops(startDate, endDate);
+            if (response.statusCode != 200) {
+                throw new MessageBusException(response.statusCode, response.statusMessage);
+            }
+            return response.results.Select(r => new MessageBusFeedbackloopsResult(r)).ToArray();
+        }
+
 
         public bool SkipValidation { private get; set; }
 

@@ -187,10 +187,6 @@ namespace MessageBus.Impl {
                 }
             }
 
-            if (email.CustomHeaders.ContainsKey("message-id")) {
-                msg = "The message-id header is reserved for internal use";
-            }
-
             if (msg.Length > 0) {
                 Logger.error(msg);
                 throw new MessageBusValidationFailedException(msg);
@@ -220,10 +216,6 @@ namespace MessageBus.Impl {
 
             if (String.IsNullOrEmpty(email.PlaintextBody) && String.IsNullOrEmpty(email.HtmlBody)) {
                 msg = "Either HtmlBody or PlaintextBody is required";
-            }
-
-            if (email.CustomHeaders.ContainsKey("message-id")) {
-                msg = "The message-id header is reserved for internal use";
             }
 
             if (msg.Length > 0) {

@@ -36,15 +36,6 @@ namespace MessageBus.Impl {
             Logger = logger;
         }
 
-        public MessageBusMailingList CreateMailingList(MessageBusMailingList mailingList) {
-            var response = HttpClient.CreateMailingList(new MailingListCreateRequest(mailingList));
-            if (response.statusCode != 201) {
-                throw new MessageBusException(response.statusCode, response.statusMessage);
-            }
-            mailingList.Key = response.key;
-            return mailingList;
-        }
-
         public MessageBusMailingList[] ListMailingLists() {
             var response = HttpClient.ListMailingLists();
             if (response.statusCode != 200) {

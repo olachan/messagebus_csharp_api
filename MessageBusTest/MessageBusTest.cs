@@ -124,6 +124,14 @@ namespace MessageBusTest {
         }
 
         [TestMethod, Ignore]
+        public void RetrievesFeedbackloopsFromDemo() {
+            var mb = MessageBus.API.MessageBusFactory.CreateStatsClient(DemoTestApiKey, new ConsoleLogger());
+            SetDebugOptions(mb);
+            var results = mb.RetrieveFeedbackloops(null, null);
+            Assert.IsNotNull(results);
+        }
+
+        [TestMethod, Ignore]
         public void ListMailingListsFromDemo() {
             var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
             SetDebugOptions(mb);
@@ -131,37 +139,37 @@ namespace MessageBusTest {
             Assert.IsNotNull(results);
         }
 
-        [TestMethod, Ignore]
-        public void CreateAMailingListOnDemo() {
-            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
-            SetDebugOptions(mb);
-            var results = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
-            Assert.IsNotNull(results.Key);
-        }
+//        [TestMethod, Ignore]
+//        public void CreateAMailingListOnDemo() {
+//            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
+//            SetDebugOptions(mb);
+//            var results = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
+//            Assert.IsNotNull(results.Key);
+//        }
 
-        [TestMethod, Ignore]
-        public void CreateAMailingListEntryOnDemo() {
-            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
-            SetDebugOptions(mb);
+//        [TestMethod, Ignore]
+//        public void CreateAMailingListEntryOnDemo() {
+//            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
+//            SetDebugOptions(mb);
 
-            var list = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
-            var entry = new MessageBusMailingListEntry();
-            entry.MergeFields.Add("%EMAIL%", "test@example.com");
-            entry.MergeFields.Add("%NAME%", "test");
-            mb.CreateMailingListEntry(list.Key, entry);
-        }
+//            var list = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
+//            var entry = new MessageBusMailingListEntry();
+//            entry.MergeFields.Add("%EMAIL%", "test@example.com");
+//            entry.MergeFields.Add("%NAME%", "test");
+//            mb.CreateMailingListEntry(list.Key, entry);
+//        }
 
-        [TestMethod, Ignore]
-        public void DeleteAMailingListEntryOnDemo() {
-            var mb = MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
-            SetDebugOptions(mb);
-            var list = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
-            var entry = new MessageBusMailingListEntry();
-            entry.MergeFields.Add("%EMAIL%", "test@example.com");
-            entry.MergeFields.Add("%NAME%", "test");
-            mb.CreateMailingListEntry(list.Key, entry);
-            mb.DeleteMailingListEntry(list.Key, "test@example.com");
-        }
+//        [TestMethod, Ignore]
+//        public void DeleteAMailingListEntryOnDemo() {
+//            var mb = MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
+//            SetDebugOptions(mb);
+//            var list = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
+//            var entry = new MessageBusMailingListEntry();
+//            entry.MergeFields.Add("%EMAIL%", "test@example.com");
+//            entry.MergeFields.Add("%NAME%", "test");
+//            mb.CreateMailingListEntry(list.Key, entry);
+//            mb.DeleteMailingListEntry(list.Key, "test@example.com");
+//        }
 
         [TestMethod, Ignore]
         public void HandlesExceptionsCorrectly() {

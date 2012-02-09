@@ -203,7 +203,7 @@ namespace MessageBusTest.Impl {
         }
 
         [TestMethod]
-        public void ThrowsAnErrorIfACustomMessageIdHeaderIsSupplied() {
+        public void NoErrorIfACustomMessageIdHeaderIsSupplied() {
             try {
                 var email = new MessageBusEmail {
                     FromEmail = "alice@example.com",
@@ -211,12 +211,13 @@ namespace MessageBusTest.Impl {
                     Subject = "Test",
                     PlaintextBody = "Test"
                 };
-                email.CustomHeaders.Add("message-id", "some message id");
+                email.CustomHeaders.Add("message-id", "foo@bar");
                 EmailClient.Send(email);
             } catch (MessageBusValidationFailedException) {
+                Assert.Fail("Exception should not be thrown");
                 return;
             }
-            Assert.Fail("Expected Exception to be thrown");
+            return;
         }
 
         void Transmitted(IMessageBusTransmissionEvent transmissionEvent) {

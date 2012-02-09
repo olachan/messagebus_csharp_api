@@ -193,5 +193,31 @@ namespace MessageBusTest.Impl {
             var actual = StatsClient.RetrieveUnsubscribes(startDate, endDate);
             Assert.AreEqual("test@example.com", actual[0].ToEmail);
         }
+
+        /// <summary>
+        ///A test for RetrieveFeedbackloops
+        ///</summary>
+        [TestMethod()]
+        public void RetrieveFeedbackloopsTest() {
+            var result = new FeedbackloopsResponseResult() {
+                time = DateTime.Now,
+                toEmail = "test@example.com"
+            };
+            MockHttpClient.Expect(
+                x =>
+                x.RetrieveFeedbackloops(
+                    Arg<DateTime>.Is.Equal(DateTime.Today.AddDays(-1)),
+                    Arg<DateTime>.Is.Equal(DateTime.Today)))
+                .Return(new FeedbackloopsResponse() {
+                    statusCode = 200,
+                    results = new List<FeedbackloopsResponseResult> {
+                        result
+                    }
+                });
+            var startDate = DateTime.Today.AddDays(-1);
+            var endDate = DateTime.Today;
+            var actual = StatsClient.RetrieveFeedbackloops(startDate, endDate);
+            Assert.AreEqual("test@example.com", actual[0].ToEmail);
+        }
     }
 }

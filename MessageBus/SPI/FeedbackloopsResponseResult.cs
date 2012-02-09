@@ -7,14 +7,13 @@
 // Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License
 //
 
+using System;
+
 namespace MessageBus.SPI
 {
-    public class MailingListItem
+    public class FeedbackloopsResponseResult
     {
-        public string name { get; set; }
-        public string key { get; set; }
-        public string[] mergeFieldKeys { get; set; }
-        public int validCount { get; set; }
-        public int invalidCount { get; set; }
+        public string toEmail { get; set; }
+        public DateTime time { get; set; }
     }
 }

@@ -33,6 +33,7 @@ namespace MessageBus.Impl {
         private const string STATS = "stats";
         private const string DELIVERY_ERRORS = "delivery_errors";
         private const string UNSUBSCRIBES = "unsubscribes";
+        private const string FEEDBACKLOOPS = "feedbackloops";
         private const string MAILING_LISTS = "mailing_lists";
         private const string MAILING_LIST_ENTRIES_FORMAT = "mailing_list/{0}/entries";
         private const string MAILING_LIST_ENTRY_FORMAT = "mailing_list/{0}/entry/{1}";
@@ -191,23 +192,27 @@ namespace MessageBus.Impl {
             }
         }
 
-        public MailingListCreateResponse CreateMailingList(MailingListCreateRequest mailingListCreateRequest) {
-            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, MAILING_LISTS);
+        public FeedbackloopsResponse RetrieveFeedbackloops(DateTime? startDate, DateTime? endDate)
+        {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, FEEDBACKLOOPS);
 
-            var request = CreateRequest(uriString, HttpMethod.POST);
-
-            string postData = Serializer.Serialize(mailingListCreateRequest);
-            byte[] postDataArray = Encoding.UTF8.GetBytes(postData);
-
-            request.ContentLength = postDataArray.Length;
-
-            using (var requestStream = request.GetRequestStream()) {
-                requestStream.Write(postDataArray, 0, postDataArray.Length);
+            if (startDate.HasValue || endDate.HasValue) {
+                uriString += "?";
+                if (startDate.HasValue) {
+                    uriString += "startDate=" + startDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
+                }
+                if (endDate.HasValue) {
+                    uriString += "endDate=" + endDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
+                }
+                uriString = uriString.TrimEnd('&');
             }
 
+            var request = CreateRequest(uriString, HttpMethod.GET);
+
             try {
-                return HandleResponse<MailingListCreateResponse>(request);
-            } catch (WebException e) {
+                return HandleResponse<FeedbackloopsResponse>(request);
+            }
+            catch (WebException e) {
                 throw HandleException(e);
             }
         }
@@ -304,7 +309,7 @@ namespace MessageBus.Impl {
             var httpWebRequest = WebRequest.Create(new Uri(uriString)) as HttpWebRequest;
             if (httpWebRequest != null) {
                 httpWebRequest.Method = method.ToString();
-                httpWebRequest.KeepAlive = true;
+                httpWebRequest.KeepAlive = false;
                 httpWebRequest.AllowAutoRedirect = true;
                 if (method == HttpMethod.POST) {
                     httpWebRequest.ContentType = "application/json; charset=utf-8";
