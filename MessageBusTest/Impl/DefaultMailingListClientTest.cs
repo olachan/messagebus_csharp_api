@@ -7,7 +7,9 @@
 // Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License
 //
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using MessageBus.API;
 using MessageBus.Impl;
 using MessageBus.SPI;
@@ -56,8 +58,30 @@ namespace MessageBusTest.Impl {
             Assert.AreEqual("TEST", actual[0].Key);
             Assert.AreEqual("%EMAIL%", actual[0].MergeFieldKeys[0]);
             Assert.AreEqual("%NAME%", actual[0].MergeFieldKeys[1]);
-            Assert.AreEqual(2, actual[0].ValidCount); 
+            Assert.AreEqual(2, actual[0].ValidCount);
             Assert.AreEqual(1, actual[0].InvalidCount);
+        }
+
+        [TestMethod]
+        public void UploadMailingListTest() {
+            MockHttpClient.Expect(
+                x =>
+                x.UploadMailingList(Arg<MailingListUploadRequest>.Is.Anything, Arg<MailingListUploadProgressHandler>.Is.Anything))
+                .Return(new MailingListUploadResponse() {
+                    statusCode = 201,
+                    statusMessage = "",
+                    invalidCount = 0,
+                    validCount = 1,
+                    key = "ABCDEF",
+                    invalidLines = new int[0],
+                    statusTime = DateTime.Now
+                });
+            var actual = MailingListClient.UploadMailingList("test", new FileInfo("TestData/simple.csv"));
+
+            Assert.AreEqual("ABCDEF", actual.Key);
+            Assert.AreEqual(1, actual.ValidCount);
+            Assert.AreEqual(0, actual.InvalidCount);
+            Assert.AreEqual(0, actual.InvalidLineNumbers.Length);
         }
 
         [TestMethod()]
@@ -84,21 +108,21 @@ namespace MessageBusTest.Impl {
             MailingListClient.CreateMailingListEntry("TEST", entry);
         }
 
-//        [TestMethod()]
-//        public void CreateMailingListTest() {
-//            MockHttpClient.Expect(
-//                x =>
-//                x.CreateMailingList(Arg<MailingListCreateRequest>.Is.Anything))
-//                .Return(new MailingListCreateResponse {
-//                    statusCode = 201,
-//                    key = "TEST"
-//                });
-//            var actual = MailingListClient.CreateMailingList(new MessageBusMailingList {
-//                MergeFieldKeys = new[] { "%EMAIL", "%NAME%" },
-//                Name = "Test"
-//            });
-//            Assert.AreEqual("Test", actual.Name);
-//            Assert.AreEqual("TEST", actual.Key);
-//        }
+        //        [TestMethod()]
+        //        public void CreateMailingListTest() {
+        //            MockHttpClient.Expect(
+        //                x =>
+        //                x.CreateMailingList(Arg<MailingListCreateRequest>.Is.Anything))
+        //                .Return(new MailingListCreateResponse {
+        //                    statusCode = 201,
+        //                    key = "TEST"
+        //                });
+        //            var actual = MailingListClient.CreateMailingList(new MessageBusMailingList {
+        //                MergeFieldKeys = new[] { "%EMAIL", "%NAME%" },
+        //                Name = "Test"
+        //            });
+        //            Assert.AreEqual("Test", actual.Name);
+        //            Assert.AreEqual("TEST", actual.Key);
+        //        }
     }
 }

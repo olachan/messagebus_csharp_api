@@ -9,8 +9,10 @@
 
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.Script.Serialization;
 using MessageBus.API;
@@ -26,7 +28,7 @@ namespace MessageBus.Impl {
         private readonly ILogger Logger;
         private readonly String ApiKey;
 
-        private const string USER_AGENT = "MessageBusAPI:3.0.1-CSHARP:3.5";
+        private const string USER_AGENT = "MessageBusAPI:3.0.2-CSHARP:3.5";
         private const string REQUEST_URL_FORMAT = "{0}/{1}/{2}";
         private const string SEND_EMAILS = "emails/send";
         private const string SEND_TEMPLATE = "templates/send";
@@ -37,7 +39,11 @@ namespace MessageBus.Impl {
         private const string MAILING_LISTS = "mailing_lists";
         private const string MAILING_LIST_ENTRIES_FORMAT = "mailing_list/{0}/entries";
         private const string MAILING_LIST_ENTRY_FORMAT = "mailing_list/{0}/entry/{1}";
+        private const string MAILING_LIST_UPLOAD = "mailing_lists/upload";
+        private const string CAMPAIGNS_SEND = "campaigns/send";
         private const string ISO_8601_DATE_FORMAT = "yyyy-MM-ddTHH:mm:ssZ";
+        private const string MIME_BOUNDARY = "AaBt03x";
+        private const int UPLOAD_BUFFER_SIZE = 4096;
 
         public enum HttpMethod {
             GET, POST, DELETE, PUT
@@ -140,12 +146,10 @@ namespace MessageBus.Impl {
             }
         }
 
-        public DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate, string tag)
-        {
+        public DeliveryErrorsResponse RetrieveDeliveryErrors(DateTime? startDate, DateTime? endDate, string tag) {
             var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, DELIVERY_ERRORS);
 
-            if (startDate.HasValue || endDate.HasValue || tag != null)
-            {
+            if (startDate.HasValue || endDate.HasValue || tag != null) {
                 uriString += "?";
                 if (startDate.HasValue) {
                     uriString += "startDate=" + startDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
@@ -153,8 +157,7 @@ namespace MessageBus.Impl {
                 if (endDate.HasValue) {
                     uriString += "endDate=" + endDate.Value.ToString(ISO_8601_DATE_FORMAT) + "&";
                 }
-                if (tag != null)
-                {
+                if (tag != null) {
                     uriString += "tag=" + tag + "&";
                 }
                 uriString = uriString.TrimEnd('&');
@@ -192,8 +195,7 @@ namespace MessageBus.Impl {
             }
         }
 
-        public FeedbackloopsResponse RetrieveFeedbackloops(DateTime? startDate, DateTime? endDate)
-        {
+        public FeedbackloopsResponse RetrieveFeedbackloops(DateTime? startDate, DateTime? endDate) {
             var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, FEEDBACKLOOPS);
 
             if (startDate.HasValue || endDate.HasValue) {
@@ -211,8 +213,7 @@ namespace MessageBus.Impl {
 
             try {
                 return HandleResponse<FeedbackloopsResponse>(request);
-            }
-            catch (WebException e) {
+            } catch (WebException e) {
                 throw HandleException(e);
             }
         }
@@ -224,6 +225,82 @@ namespace MessageBus.Impl {
 
             try {
                 return HandleResponse<MailingListsResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
+        }
+
+        public MailingListUploadResponse UploadMailingList(MailingListUploadRequest mailingListUploadRequest, MailingListUploadProgressHandler onUploadProgress) {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, MAILING_LIST_UPLOAD);
+            var request = CreateRequest(uriString, HttpMethod.POST);
+            request.SendChunked = true;
+            request.Timeout = Timeout.Infinite;
+            request.AllowWriteStreamBuffering = false;
+
+            var boundary = Encoding.UTF8.GetBytes(String.Format("--{0}\r\n", MIME_BOUNDARY));
+            var eof = Encoding.UTF8.GetBytes(String.Format("--{0}--\r\n", MIME_BOUNDARY));
+            var newLine = Encoding.UTF8.GetBytes("\r\n");
+
+            string part1Json = Serializer.Serialize(mailingListUploadRequest);
+            byte[] part1 = Encoding.UTF8.GetBytes(part1Json);
+
+            request.ContentType = String.Format("multipart/form-data; boundary={0}", MIME_BOUNDARY);
+            var totalBytes = mailingListUploadRequest.fileInfo.Length;
+
+            var part1Headers = Encoding.UTF8.GetBytes("Content-Disposition: form-data; name=\"jsonData\";\r\nContent-Type: application/json; charset=utf-8;\r\n\r\n");
+            var part2Headers = Encoding.UTF8.GetBytes(String.Format("Content-Disposition: form-data; name=\"fileData\"; filename=\"{0}\";\r\nContent-Type: application/x-gzip\r\n\r\n", mailingListUploadRequest.fileInfo.Name));
+
+            using (var requestStream = request.GetRequestStream()) {
+                requestStream.WriteTimeout = Timeout.Infinite;
+                requestStream.Write(boundary, 0, boundary.Length);
+                requestStream.Write(part1Headers, 0, part1Headers.Length);
+                requestStream.Write(part1, 0, part1.Length);
+                requestStream.Write(newLine, 0, newLine.Length);
+                requestStream.Write(boundary, 0, boundary.Length);
+                requestStream.Write(part2Headers, 0, part2Headers.Length);
+                var gzipStream = new GZipStream(requestStream, CompressionMode.Compress, true);
+                var uploadedBytes = 0L;
+                using (var fs = mailingListUploadRequest.fileInfo.OpenRead()) {
+                    var buff = new byte[UPLOAD_BUFFER_SIZE];
+                    var len = 0;
+                    while ((len = fs.Read(buff, 0, buff.Length)) > 0) {
+                        gzipStream.Write(buff, 0, len);
+                        uploadedBytes += len;
+                        if (onUploadProgress != null) {
+                            onUploadProgress(uploadedBytes, totalBytes);
+                        }
+                    }
+                }
+                gzipStream.Close();
+                requestStream.Write(newLine, 0, newLine.Length);
+                requestStream.Write(eof, 0, eof.Length);
+                requestStream.Flush();
+            }
+
+            try {
+                return HandleResponse<MailingListUploadResponse>(request);
+            } catch (WebException e) {
+                throw HandleException(e);
+            }
+
+        }
+
+        public CampaignSendResponse SendCampaign(CampaignSendRequest campaignSendRequest) {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, CAMPAIGNS_SEND);
+
+            var request = CreateRequest(uriString, HttpMethod.POST);
+
+            string postData = Serializer.Serialize(campaignSendRequest);
+            byte[] postDataArray = Encoding.UTF8.GetBytes(postData);
+
+            request.ContentLength = postDataArray.Length;
+
+            using (var requestStream = request.GetRequestStream()) {
+                requestStream.Write(postDataArray, 0, postDataArray.Length);
+            }
+
+            try {
+                return HandleResponse<CampaignSendResponse>(request);
             } catch (WebException e) {
                 throw HandleException(e);
             }
@@ -373,6 +450,21 @@ namespace MessageBus.Impl {
 
         public virtual WebResponse GetResponse() {
             return InnerRequest.GetResponse();
+        }
+
+        public virtual bool SendChunked {
+            get { return InnerRequest.SendChunked; }
+            set { InnerRequest.SendChunked = value; }
+        }
+
+        public virtual int Timeout {
+            get { return InnerRequest.Timeout; }
+            set { InnerRequest.Timeout = value; }
+        }
+
+        public virtual bool AllowWriteStreamBuffering {
+            get { return InnerRequest.AllowWriteStreamBuffering; }
+            set { InnerRequest.AllowWriteStreamBuffering = value; }
         }
     }
 

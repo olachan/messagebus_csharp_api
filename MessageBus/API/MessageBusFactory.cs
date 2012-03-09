@@ -40,5 +40,12 @@ namespace MessageBus.API {
             return new DefaultMailingListClient(apiKey, logger);
         }
 
+        public static IMessageBusCampaignsClient CreateCampaignClient(string apiKey) {
+            return new DefaultCampaignClient(apiKey);
+        }
+
+        public static IMessageBusCampaignsClient CreateCampaignClient(string apiKey, ILogger logger) {
+            return new DefaultCampaignClient(apiKey, logger);
+        }
     }
 }

@@ -8,6 +8,8 @@
 //
 
 using System;
+using System.IO;
+using System.Text;
 using MessageBus.API;
 using MessageBus.API.V3;
 using MessageBus.API.V3.Debug;
@@ -21,8 +23,8 @@ namespace MessageBusTest {
     [TestClass]
     public class MessageBusTest {
 
-        private const string DemoTestApiKey = "<YOUR API KEY>";
-        private const string DemoUrl = "https://api.messagebus.com";
+        private const string DemoTestApiKey = "<API KEY>";
+        private const string DemoUrl = "<demo server>";
 
         [TestMethod]
         public void CanCreateANewMessageBusClientWithAnApiKey() {
@@ -132,6 +134,49 @@ namespace MessageBusTest {
         }
 
         [TestMethod, Ignore]
+        public void CanGenerateABigList() {
+            using (var stream = new FileStream("../../../../../TestData/big.csv", FileMode.CreateNew)) {
+                var header = Encoding.UTF8.GetBytes("\"%EMAIL%\",\"%NAME%\"\r\n");
+                stream.Write(header, 0, header.Length);
+                for (var i = 0; i < 50000; i++) {
+                    var line = Encoding.UTF8.GetBytes(String.Format("\"test+{0}@blackhole.mailbypass.com\",\"Test Person {0}\"\r\n", i));
+                    stream.Write(line, 0, line.Length);
+                }
+            }
+        }
+
+        [TestMethod, Ignore]
+        public void CanUploadAMailingListToDemo() {
+            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
+            SetDebugOptions(mb);
+            var results = mb.UploadMailingList("test", new FileInfo("../../../../../TestData/big2.csv"));
+            Assert.IsNotNull(results.Key);
+        }
+
+        [TestMethod, Ignore]
+        public void CanSendACampaignToDemo() {
+
+            var mb1 = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
+            SetDebugOptions(mb1);
+            var results1 = mb1.UploadMailingList("test", new FileInfo("../../../../../TestData/simple.csv"));
+            Assert.IsNotNull(results1.Key);
+
+            var mb2 = MessageBus.API.MessageBusFactory.CreateCampaignClient(DemoTestApiKey, new ConsoleLogger());
+            SetDebugOptions(mb2);
+            var request = new MessageBusCampaign() {
+                CampaignName = "C# Test",
+                Subject = "This is a Test Email",
+                FromName = "Bob",
+                FromEmail = "bob@blackhole.mailbypass.com",
+                MailingListKey = results1.Key,
+                HtmlBody = "<html><body>This is the HTML body</body></html>",
+                PlaintextBody = "This is the palintext body",
+            };
+            var results2 = mb2.SendCampaign(request);
+            Assert.IsNotNull(results2.CampaignKey);
+        }
+
+        [TestMethod, Ignore]
         public void ListMailingListsFromDemo() {
             var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
             SetDebugOptions(mb);
@@ -139,37 +184,37 @@ namespace MessageBusTest {
             Assert.IsNotNull(results);
         }
 
-//        [TestMethod, Ignore]
-//        public void CreateAMailingListOnDemo() {
-//            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
-//            SetDebugOptions(mb);
-//            var results = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
-//            Assert.IsNotNull(results.Key);
-//        }
+        //        [TestMethod, Ignore]
+        //        public void CreateAMailingListOnDemo() {
+        //            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
+        //            SetDebugOptions(mb);
+        //            var results = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
+        //            Assert.IsNotNull(results.Key);
+        //        }
 
-//        [TestMethod, Ignore]
-//        public void CreateAMailingListEntryOnDemo() {
-//            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
-//            SetDebugOptions(mb);
+        //        [TestMethod, Ignore]
+        //        public void CreateAMailingListEntryOnDemo() {
+        //            var mb = MessageBus.API.MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
+        //            SetDebugOptions(mb);
 
-//            var list = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
-//            var entry = new MessageBusMailingListEntry();
-//            entry.MergeFields.Add("%EMAIL%", "test@example.com");
-//            entry.MergeFields.Add("%NAME%", "test");
-//            mb.CreateMailingListEntry(list.Key, entry);
-//        }
+        //            var list = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
+        //            var entry = new MessageBusMailingListEntry();
+        //            entry.MergeFields.Add("%EMAIL%", "test@example.com");
+        //            entry.MergeFields.Add("%NAME%", "test");
+        //            mb.CreateMailingListEntry(list.Key, entry);
+        //        }
 
-//        [TestMethod, Ignore]
-//        public void DeleteAMailingListEntryOnDemo() {
-//            var mb = MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
-//            SetDebugOptions(mb);
-//            var list = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
-//            var entry = new MessageBusMailingListEntry();
-//            entry.MergeFields.Add("%EMAIL%", "test@example.com");
-//            entry.MergeFields.Add("%NAME%", "test");
-//            mb.CreateMailingListEntry(list.Key, entry);
-//            mb.DeleteMailingListEntry(list.Key, "test@example.com");
-//        }
+        //        [TestMethod, Ignore]
+        //        public void DeleteAMailingListEntryOnDemo() {
+        //            var mb = MessageBusFactory.CreateMailingListClient(DemoTestApiKey, new ConsoleLogger());
+        //            SetDebugOptions(mb);
+        //            var list = mb.CreateMailingList(new MessageBusMailingList { MergeFieldKeys = new[] { "%EMAIL%", "%NAME%" }, Name = "Test" });
+        //            var entry = new MessageBusMailingListEntry();
+        //            entry.MergeFields.Add("%EMAIL%", "test@example.com");
+        //            entry.MergeFields.Add("%NAME%", "test");
+        //            mb.CreateMailingListEntry(list.Key, entry);
+        //            mb.DeleteMailingListEntry(list.Key, "test@example.com");
+        //        }
 
         [TestMethod, Ignore]
         public void HandlesExceptionsCorrectly() {
@@ -188,14 +233,17 @@ namespace MessageBusTest {
             debug.Domain = DemoUrl;
             debug.SslVerifyPeer = false;
         }
-        private void SetDebugOptions(IMessageBusStatsClient emailClient) {
-            SetDebugOptions(emailClient as IMessageBusDebugging);
+        private void SetDebugOptions(IMessageBusStatsClient client) {
+            SetDebugOptions(client as IMessageBusDebugging);
         }
-        private void SetDebugOptions(IMessageBusEmailClient emailClient) {
-            SetDebugOptions(emailClient as IMessageBusDebugging);
+        private void SetDebugOptions(IMessageBusEmailClient client) {
+            SetDebugOptions(client as IMessageBusDebugging);
         }
-        private void SetDebugOptions(IMessageBusMailingListClient emailClient) {
-            SetDebugOptions(emailClient as IMessageBusDebugging);
+        private void SetDebugOptions(IMessageBusMailingListClient client) {
+            SetDebugOptions(client as IMessageBusDebugging);
+        }
+        private void SetDebugOptions(IMessageBusCampaignsClient client) {
+            SetDebugOptions(client as IMessageBusDebugging);
         }
     }
 }

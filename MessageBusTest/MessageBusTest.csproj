@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Impl\DefaultCampaignClientTest.cs" />
     <Compile Include="Impl\DefaultMailingListClientTest.cs" />
     <Compile Include="Impl\DefaultStatsClientTest.cs" />
     <Compile Include="Impl\AutoBatchingClientTest.cs" />
@@ -66,6 +67,9 @@
       <Project>{6AD6CFDF-B8E8-452A-B45D-FE62A2A7FDFA}</Project>
       <Name>MessageBus</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData\simple.csv" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

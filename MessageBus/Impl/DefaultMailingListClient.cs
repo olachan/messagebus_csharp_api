@@ -8,6 +8,7 @@
 //
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using MessageBus.API;
@@ -43,6 +44,16 @@ namespace MessageBus.Impl {
             }
             return response.results.Select(r => new MessageBusMailingList(r)).ToArray();
         }
+
+        public MessageBusMailingListUploadResult UploadMailingList(string name, FileInfo file) {
+            var response = HttpClient.UploadMailingList(new MailingListUploadRequest(name, file), UploadProgress);
+            if (response.statusCode != 201) {
+                throw new MessageBusException(response.statusCode, response.statusMessage);
+            }
+            return new MessageBusMailingListUploadResult(response);
+        }
+
+        public event MailingListUploadProgressHandler UploadProgress;
 
         public void CreateMailingListEntry(string mailingListKey, MessageBusMailingListEntry entry) {
             var response = HttpClient.CreateMailingListEntry(mailingListKey, new MailingListEntryCreateRequest(entry));

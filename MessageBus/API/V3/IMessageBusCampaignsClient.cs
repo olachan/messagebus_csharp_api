@@ -10,12 +10,7 @@
 using System.IO;
 
 namespace MessageBus.API.V3 {
-    public interface IMessageBusMailingListClient {
-        MessageBusMailingList[] ListMailingLists();
-        //void CreateMailingListEntry(string mailingListKey, MessageBusMailingListEntry entry);
-        //void DeleteMailingListEntry(string mailingListKey, string emailAddress);
-        MessageBusMailingListUploadResult UploadMailingList(string name, FileInfo file);
-
-        event MailingListUploadProgressHandler UploadProgress;
+    public interface IMessageBusCampaignsClient {
+        MessageBusCampaignResult SendCampaign(MessageBusCampaign request);
     }
 }

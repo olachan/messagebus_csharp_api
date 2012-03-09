@@ -1,4 +1,4 @@
-// Copyright (c) 2012. Mail Bypass, Inc.
+﻿// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -8,14 +8,22 @@
 //
 
 using System.IO;
+using System.Web.Script.Serialization;
+using MessageBus.API.V3;
 
-namespace MessageBus.API.V3 {
-    public interface IMessageBusMailingListClient {
-        MessageBusMailingList[] ListMailingLists();
-        //void CreateMailingListEntry(string mailingListKey, MessageBusMailingListEntry entry);
-        //void DeleteMailingListEntry(string mailingListKey, string emailAddress);
-        MessageBusMailingListUploadResult UploadMailingList(string name, FileInfo file);
+namespace MessageBus.SPI {
+    public class MailingListUploadRequest {
+        public MailingListUploadRequest() {
 
-        event MailingListUploadProgressHandler UploadProgress;
+        }
+
+        public MailingListUploadRequest(string name, FileInfo fileInfo) {
+            this.fileInfo = fileInfo;
+            this.name = name;
+        }
+
+        [ScriptIgnore]
+        public FileInfo fileInfo { get; set; }
+        public string name { get; set; }
     }
 }

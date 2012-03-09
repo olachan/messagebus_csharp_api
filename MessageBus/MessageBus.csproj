@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{6AD6CFDF-B8E8-452A-B45D-FE62A2A7FDFA}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -49,10 +49,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\V3\MailingListUploadProgressHandler.cs" />
+    <Compile Include="API\V3\MessageBusCampaignResult.cs" />
+    <Compile Include="API\V3\MessageBusCampaign.cs" />
+    <Compile Include="API\V3\IMessageBusCampaignsClient.cs" />
+    <Compile Include="API\V3\MessageBusMailingList.cs" />
     <Compile Include="API\V3\MessageBusFeedbackloopsResult.cs" />
     <Compile Include="API\V3\IMessageBusMailingListClient.cs" />
     <Compile Include="API\V3\IMessageBusStatsClient.cs" />
-    <Compile Include="API\V3\MessageBusMailingList.cs" />
+    <Compile Include="API\V3\MessageBusMailingListUploadResult.cs" />
     <Compile Include="API\V3\MessageBusMailingListEntry.cs" />
     <Compile Include="API\V3\MessageBusDeliveryErrorResult.cs" />
     <Compile Include="API\V3\MessageBusTemplateEmail.cs" />
@@ -61,7 +66,7 @@
     <Compile Include="API\ILogger.cs" />
     <Compile Include="API\MessageBusFactory.cs" />
     <Compile Include="API\V3\IMessageBusMessageStatus.cs" />
-    <Compile Include="API\V3\MessageBusTransmissionEvent.cs" />
+    <Compile Include="API\V3\IMessageBusTransmissionEvent.cs" />
     <Compile Include="API\V3\MessageBusValidationFailedException.cs" />
     <Compile Include="API\V3\MessageTransmissionHandler.cs" />
     <Compile Include="API\V3\MessageBusStatsResult.cs" />
@@ -69,6 +74,7 @@
     <Compile Include="Impl\AutoBatchingEmailClient.cs" />
     <Compile Include="API\V3\MessageBusEmail.cs" />
     <Compile Include="Impl\ConsoleLogger.cs" />
+    <Compile Include="Impl\DefaultCampaignClient.cs" />
     <Compile Include="Impl\DefaultMailingListClient.cs" />
     <Compile Include="Impl\DefaultStatsClient.cs" />
     <Compile Include="API\V3\MessageBusException.cs" />
@@ -79,6 +85,8 @@
     <Compile Include="SPI\BatchEmailSendRequest.cs" />
     <Compile Include="SPI\BatchTemplateSendRequest.cs" />
     <Compile Include="SPI\BatchTemplateMessage.cs" />
+    <Compile Include="SPI\CampaignSendRequest.cs" />
+    <Compile Include="SPI\CampaignSendResponse.cs" />
     <Compile Include="SPI\FeedbackloopsResponse.cs" />
     <Compile Include="SPI\FeedbackloopsResponseResult.cs" />
     <Compile Include="SPI\ErrorResponse.cs" />
@@ -93,6 +101,8 @@
     <Compile Include="SPI\MailingListEntryDeleteResponse.cs" />
     <Compile Include="SPI\MailingListItem.cs" />
     <Compile Include="SPI\MailingListsResponse.cs" />
+    <Compile Include="SPI\MailingListUploadRequest.cs" />
+    <Compile Include="SPI\MailingListUploadResponse.cs" />
     <Compile Include="SPI\StatsResponse.cs" />
     <Compile Include="SPI\StatsResponseResult.cs" />
     <Compile Include="SPI\UnsubscribeResponseResult.cs" />

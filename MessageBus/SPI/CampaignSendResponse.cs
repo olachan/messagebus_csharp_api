@@ -7,15 +7,13 @@
 // Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License
 //
 
-using System.IO;
+using System;
 
-namespace MessageBus.API.V3 {
-    public interface IMessageBusMailingListClient {
-        MessageBusMailingList[] ListMailingLists();
-        //void CreateMailingListEntry(string mailingListKey, MessageBusMailingListEntry entry);
-        //void DeleteMailingListEntry(string mailingListKey, string emailAddress);
-        MessageBusMailingListUploadResult UploadMailingList(string name, FileInfo file);
-
-        event MailingListUploadProgressHandler UploadProgress;
+namespace MessageBus.SPI {
+    public class CampaignSendResponse {
+        public int statusCode { get; set; }
+        public string statusMessage { get; set; }
+        public DateTime statusTime { get; set; }
+        public string campaignKey { get; set; }
     }
 }

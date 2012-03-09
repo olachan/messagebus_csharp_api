@@ -10,6 +10,7 @@
 using System;
 using System.Net;
 using System.Web.Script.Serialization;
+using MessageBus.API.V3;
 
 namespace MessageBus.SPI {
     /// <summary>
@@ -31,5 +32,7 @@ namespace MessageBus.SPI {
         MailingListsResponse ListMailingLists();
         MailingListEntryCreateResponse CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest);
         MailingListEntryDeleteResponse DeleteMailingListEntry(string mailingListKey, string emailAddress);
+        MailingListUploadResponse UploadMailingList(MailingListUploadRequest request, MailingListUploadProgressHandler onUploadProgress);
+        CampaignSendResponse SendCampaign(CampaignSendRequest request);
     }
 }
