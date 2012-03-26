@@ -657,7 +657,7 @@ namespace MessageBusExample {
                 var result = client.UploadMailingList("Example", new FileInfo(tbMailingList.Text));
                 tbMailingListPassed.Text = result.ValidCount.ToString();
                 tbMailingListFailed.Text = result.InvalidCount.ToString();
-                tbMailingListId.Text = result.Key;
+                tbMailingListId.Text = result.MailingListKey;
                 tbMailingListError.ForeColor = Color.Green;
                 tbMailingListError.Text = "Success!";
             } catch (Exception x) {

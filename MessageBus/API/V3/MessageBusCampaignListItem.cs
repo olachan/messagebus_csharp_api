@@ -7,28 +7,19 @@
 // Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License
 //
 
-using System;
+using System.Collections.Generic;
 using MessageBus.SPI;
 
 namespace MessageBus.API.V3 {
-    public class MessageBusMailingList {
-
-        public MessageBusMailingList() {
-
+    public sealed class MessageBusCampaignListItem {
+        public MessageBusCampaignListItem(CampaignsResponseResult result)
+        {
+            CampaignName = result.name;
+            CampaignKey = result.campaignKey;
+            IsPublished = result.published;
         }
-
-        public MessageBusMailingList(MailingListItem item) {
-            MailingListKey = item.mailingListKey;
-            Name = item.name;
-            MergeFieldKeys = item.mergeFields;
-            ValidCount = item.validCount;
-            InvalidCount = item.invalidCount;
-        }
-
-        public string MailingListKey { get; set; }
-        public string Name { get; set; }
-        public string[] MergeFieldKeys { get; set; }
-        public int ValidCount { get; set; }
-        public int InvalidCount { get; set; }
+        public string CampaignName { get; private set; }
+        public string CampaignKey { get; private set; }
+        public bool IsPublished { get; private set; }        
     }
 }

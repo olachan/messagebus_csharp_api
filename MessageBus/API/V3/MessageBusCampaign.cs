@@ -8,6 +8,7 @@
 //
 
 using System.Collections.Generic;
+using MessageBus.SPI;
 
 namespace MessageBus.API.V3 {
     public sealed class MessageBusCampaign {

@@ -40,7 +40,10 @@ namespace MessageBus.Impl {
         private const string MAILING_LIST_ENTRIES_FORMAT = "mailing_list/{0}/entries";
         private const string MAILING_LIST_ENTRY_FORMAT = "mailing_list/{0}/entry/{1}";
         private const string MAILING_LIST_UPLOAD = "mailing_lists/upload";
+        private const string MAILING_LIST_DELETE = "mailing_list/{0}";
         private const string CAMPAIGNS_SEND = "campaigns/send";
+        private const string CAMPAIGNS_GET = "campaigns";
+        private const string CAMPAIGN_STATUS = "campaign/{0}/status";
         private const string ISO_8601_DATE_FORMAT = "yyyy-MM-ddTHH:mm:ssZ";
         private const string MIME_BOUNDARY = "AaBt03x";
         private const int UPLOAD_BUFFER_SIZE = 4096;
@@ -306,6 +309,38 @@ namespace MessageBus.Impl {
             }
         }
 
+        public CampaignStatusResponse CampaignStatus(string campaignKey)
+        {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, String.Format(CAMPAIGN_STATUS, campaignKey));
+
+            var request = CreateRequest(uriString, HttpMethod.GET);
+          
+            try
+            {
+                return HandleResponse<CampaignStatusResponse>(request);
+            }
+            catch (WebException e)
+            {
+                throw HandleException(e);
+            }
+        }
+
+        public CampaignsResponse ListCampaigns()
+        {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, CAMPAIGNS_GET);
+
+            var request = CreateRequest(uriString, HttpMethod.GET);
+
+            try
+            {
+                return HandleResponse<CampaignsResponse>(request);
+            }
+            catch (WebException e)
+            {
+                throw HandleException(e);
+            }
+        }
+
         public MailingListEntryCreateResponse CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest) {
             var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, String.Format(MAILING_LIST_ENTRIES_FORMAT, mailingListKey));
 
@@ -339,6 +374,21 @@ namespace MessageBus.Impl {
             }
         }
 
+        public  MailingListDeleteResponse DeleteMailingList(string mailingListKey)
+        {
+            var uriString = String.Format(REQUEST_URL_FORMAT, Domain, Path, String.Format(MAILING_LIST_DELETE, mailingListKey));
+
+            var request = CreateRequest(uriString, HttpMethod.DELETE);
+
+            try
+            {
+                return HandleResponse<MailingListDeleteResponse>(request);
+            }
+            catch (WebException e)
+            {
+                throw HandleException(e);
+            }
+        }
         private T HandleResponse<T>(WebRequestWrapper request) {
             using (var response = WrapResponse(request.GetResponse())) {
                 using (var responseStream = response.GetResponseStream()) {

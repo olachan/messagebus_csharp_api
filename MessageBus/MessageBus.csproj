@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\V3\MessageBusCampaignListItem.cs" />
     <Compile Include="API\V3\MailingListUploadProgressHandler.cs" />
     <Compile Include="API\V3\MessageBusCampaignResult.cs" />
     <Compile Include="API\V3\MessageBusCampaign.cs" />
@@ -87,6 +88,9 @@
     <Compile Include="SPI\BatchTemplateMessage.cs" />
     <Compile Include="SPI\CampaignSendRequest.cs" />
     <Compile Include="SPI\CampaignSendResponse.cs" />
+    <Compile Include="SPI\CampaignsResponse.cs" />
+    <Compile Include="SPI\CampaignsResponseResult.cs" />
+    <Compile Include="SPI\CampaignStatusResponse.cs" />
     <Compile Include="SPI\FeedbackloopsResponse.cs" />
     <Compile Include="SPI\FeedbackloopsResponseResult.cs" />
     <Compile Include="SPI\ErrorResponse.cs" />
@@ -96,6 +100,7 @@
     <Compile Include="SPI\BatchEmailResponse.cs" />
     <Compile Include="SPI\MailingListCreateRequest.cs" />
     <Compile Include="SPI\MailingListCreateResponse.cs" />
+    <Compile Include="SPI\MailingListDeleteResponse.cs" />
     <Compile Include="SPI\MailingListEntryCreateRequest.cs" />
     <Compile Include="SPI\MailingListEntryCreateResponse.cs" />
     <Compile Include="SPI\MailingListEntryDeleteResponse.cs" />

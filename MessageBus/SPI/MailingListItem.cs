@@ -12,8 +12,8 @@ namespace MessageBus.SPI
     public class MailingListItem
     {
         public string name { get; set; }
-        public string key { get; set; }
-        public string[] mergeFieldKeys { get; set; }
+        public string mailingListKey { get; set; }
+        public string[] mergeFields { get; set; }
         public int validCount { get; set; }
         public int invalidCount { get; set; }
     }

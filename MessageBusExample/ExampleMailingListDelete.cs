@@ -21,16 +21,15 @@ using MessageBus.Impl;
 
 namespace MessageBusExample {
 
-    public class ExampleMailingListUploadAndCampaignSend {
+    public class ExampleMailingListDelete {
 
         // replace with YOUR PRIVATE key, which can be found here: https://www.messagebus.com/api
         private readonly IMessageBusMailingListClient MessageBusMailingLists = MessageBusFactory.CreateMailingListClient("<YOUR API KEY>", new ConsoleLogger());
-        private readonly IMessageBusCampaignsClient MessageBusCampaigns = MessageBusFactory.CreateCampaignClient("<YOUR API KEY>", new ConsoleLogger());
-
+       
         /// <summary>
-        /// This example uploads a mailing list and sends a campaign based on the mailing list
+        /// This example deletes a mailing list.
         /// </summary>
-        string RunExample(string name, FileInfo mailingList) {
+        void RunExample(string name, FileInfo mailingList) {
 
             try {
 
@@ -38,19 +37,8 @@ namespace MessageBusExample {
 
                 var mailingListKey = uploadResult.MailingListKey;
 
-                var request = new MessageBusCampaign() {
-                    CampaignName = name,
-                    Subject = "This is a Test Email",
-                    FromName = "Bob",
-                    FromEmail = "bob@example.com",
-                    MailingListKey = mailingListKey,
-                    HtmlBody = "<html><body>This is the HTML body</body></html>",
-                    PlaintextBody = "This is the palintext body",
-                };
-                var campaignResult = MessageBusCampaigns.SendCampaign(request);
-
-                return campaignResult.CampaignKey;
-
+                MessageBusMailingLists.DeleteMailingList(mailingListKey);
+                
             } catch (MessageBusException) {
                 throw;
             }

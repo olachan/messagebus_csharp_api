@@ -30,11 +30,21 @@ namespace MessageBus.Impl {
         public DefaultCampaignClient(string apiKey, ILogger logger) {
             HttpClient = new SimpleHttpClient(apiKey);
             Logger = logger;
-        }
+        }        
 
         public DefaultCampaignClient(IMessageBusHttpClient httpClient, ILogger logger) {
             HttpClient = httpClient;
             Logger = logger;
+        }
+
+        public MessageBusCampaignListItem[] ListCampaigns()
+        {
+            var response = HttpClient.ListCampaigns();
+            if (response.statusCode != 200)
+            {
+                throw new MessageBusException(response.statusCode, response.statusMessage);
+            }
+            return response.results.Select(r => new MessageBusCampaignListItem(r)).ToArray();
         }
 
         public MessageBusCampaignResult SendCampaign(MessageBusCampaign request) {
@@ -43,7 +53,17 @@ namespace MessageBus.Impl {
                 throw new MessageBusException(response.statusCode, response.statusMessage);
             }
             return new MessageBusCampaignResult(response);
-        }        
+        }
+
+        public bool IsCampaignComplete(string campaignKey)
+        {
+            var response = HttpClient.CampaignStatus(campaignKey);
+            if (response.statusCode != 200)
+            {
+                throw new MessageBusException(response.statusCode, response.statusMessage);
+            }
+            return response.completed;
+        }
 
         public bool SkipValidation { private get; set; }
 
@@ -63,7 +83,6 @@ namespace MessageBus.Impl {
         public IWebProxy Proxy {
             set { HttpClient.Proxy = value; }
         }
-
         
     }
 }

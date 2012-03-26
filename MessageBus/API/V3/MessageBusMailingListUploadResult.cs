@@ -17,14 +17,15 @@ namespace MessageBus.API.V3 {
 
         }
 
-        public MessageBusMailingListUploadResult(MailingListUploadResponse response) {
-            Key = response.key;
+        public MessageBusMailingListUploadResult(MailingListUploadResponse response)
+        {
+            MailingListKey = response.mailingListKey;
             ValidCount = response.validCount;
             InvalidCount = response.invalidCount;
             InvalidLineNumbers = response.invalidLines;
         }
 
-        public string Key { get; set; }
+        public string MailingListKey { get; set; }
         public int ValidCount { get; set; }
         public int InvalidCount { get; set; }
         public int[] InvalidLineNumbers { get; set; }

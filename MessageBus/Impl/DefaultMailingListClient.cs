@@ -55,7 +55,7 @@ namespace MessageBus.Impl {
 
         public event MailingListUploadProgressHandler UploadProgress;
 
-        public void CreateMailingListEntry(string mailingListKey, MessageBusMailingListEntry entry) {
+        public void AddMailingListEntry(string mailingListKey, MessageBusMailingListEntry entry) {
             var response = HttpClient.CreateMailingListEntry(mailingListKey, new MailingListEntryCreateRequest(entry));
             if (response.statusCode != 201) {
                 throw new MessageBusException(response.statusCode, response.statusMessage);
@@ -69,6 +69,14 @@ namespace MessageBus.Impl {
             }
         }
 
+        public void DeleteMailingList(string mailingListKey)
+        {
+            var response = HttpClient.DeleteMailingList(mailingListKey);
+            if (response.statusCode != 200)
+            {
+                throw new MessageBusException(response.statusCode, response.statusMessage);
+            }
+        }
         public bool SkipValidation { private get; set; }
 
 

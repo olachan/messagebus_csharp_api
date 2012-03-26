@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2012. Mail Bypass, Inc.
+// Copyright (c) 2012. Mail Bypass, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -9,14 +9,12 @@
 
 using System;
 
-namespace MessageBus.SPI {
-    public class MailingListUploadResponse {
+namespace MessageBus.SPI
+{
+    public class MailingListDeleteResponse
+    {
         public int statusCode { get; set; }
         public string statusMessage { get; set; }
         public DateTime statusTime { get; set; }
-        public string mailingListKey { get; set; }
-        public int validCount { get; set; }
-        public int invalidCount { get; set; }
-        public int[] invalidLines { get; set; }
     }
 }

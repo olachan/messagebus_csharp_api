@@ -12,5 +12,7 @@ using System.IO;
 namespace MessageBus.API.V3 {
     public interface IMessageBusCampaignsClient {
         MessageBusCampaignResult SendCampaign(MessageBusCampaign request);
+        bool IsCampaignComplete(string campaignKey);
+        MessageBusCampaignListItem[] ListCampaigns();
     }
 }

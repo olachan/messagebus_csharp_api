@@ -58,8 +58,59 @@ namespace MessageBusTest.Impl {
             };
             request.CustomHeaders.Add("X-Custom_Header", "somevalue");
             var actual = CampaignClient.SendCampaign(request);
-            Assert.AreEqual("TEST1234", actual.CampaignKey);
+            Assert.AreEqual("TEST1234", actual.CampaignKey);            
         }
 
+        [TestMethod()]
+        public void CampaignStatusTest()
+        {
+            MockHttpClient.Expect(
+                 x =>
+                 x.CampaignStatus(Arg<String>.Is.Anything))
+                 .Return(new CampaignStatusResponse()
+                 {
+                     completed = true,
+                     statusCode = 202,
+                     statusMessage = "test campaign status message",
+                     statusTime = DateTime.UtcNow,
+                 }
+                 );
+
+            CampaignStatusResponse csr = MockHttpClient.CampaignStatus("TEST1234");
+            Assert.AreEqual(202, csr.statusCode);
+            Assert.AreEqual(true, csr.completed);
+            Assert.AreEqual("test campaign status message", csr.statusMessage);
+        }
+
+        [TestMethod()]
+        public void ListCampaignsTest()
+        {
+            var result = new CampaignsResponseResult()
+            {
+                campaignKey = "TEST1234",
+                name = "hello",
+                published = true,               
+            };            
+            
+            MockHttpClient.Expect(
+                x =>
+                x.ListCampaigns())
+                .Return(new CampaignsResponse()
+                {
+                    statusCode = 200,
+                    statusMessage = "test campaign status message",
+                    statusTime = DateTime.UtcNow,
+                    count = 1,
+                    results = new List<CampaignsResponseResult> {
+                        result
+                    }
+                });
+
+            CampaignsResponse response = MockHttpClient.ListCampaigns();
+            Assert.AreEqual(200, response.statusCode);
+            Assert.AreEqual(1, response.count);
+            Assert.AreEqual("test campaign status message", response.statusMessage);            
+            Assert.AreEqual("TEST1234", response.results[0].campaignKey);            
+        }
     }
 }

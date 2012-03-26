@@ -32,7 +32,10 @@ namespace MessageBus.SPI {
         MailingListsResponse ListMailingLists();
         MailingListEntryCreateResponse CreateMailingListEntry(string mailingListKey, MailingListEntryCreateRequest mailingListEntryCreateRequest);
         MailingListEntryDeleteResponse DeleteMailingListEntry(string mailingListKey, string emailAddress);
+        MailingListDeleteResponse DeleteMailingList(string mailingListKey);
         MailingListUploadResponse UploadMailingList(MailingListUploadRequest request, MailingListUploadProgressHandler onUploadProgress);
         CampaignSendResponse SendCampaign(CampaignSendRequest request);
+        CampaignStatusResponse CampaignStatus(string campaignId);
+        CampaignsResponse ListCampaigns();
     }
 }
